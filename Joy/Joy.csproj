@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BF5B58F1-1B39-4734-A3E0-B552A9F31B99}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AvP.Joy</RootNamespace>
+    <AssemblyName>Joy</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="CharExtensions.cs" />
+    <Compile Include="ComparableExtensions.cs" />
+    <Compile Include="ComparerExtensions.cs" />
+    <Compile Include="ComparerBase.cs" />
+    <Compile Include="ReflectionExtensions.cs" />
+    <Compile Include="EnumExtensions.cs" />
+    <Compile Include="IOExtensions.cs" />
+    <Compile Include="Sequences\ConcatSequence.cs" />
+    <Compile Include="Enumerables\EnumerableObjectExtensions.cs" />
+    <Compile Include="SelectiveComparer.cs" />
+    <Compile Include="Sequences\SequenceObjectExtensions.cs" />
+    <Compile Include="Sequences\WrappedSequence.cs" />
+    <Compile Include="Sequences\LinkedSequence.cs" />
+    <Compile Include="Sequences\LazySequence.cs" />
+    <Compile Include="Sequences\ISequence.cs" />
+    <Compile Include="F`1.cs" />
+    <Compile Include="DelegatingDisposable.cs" />
+    <Compile Include="Enumerables\EnumerableExtensions.cs" />
+    <Compile Include="Sequences\Sequence.cs" />
+    <Compile Include="F.cs" />
+    <Compile Include="IntExtensions.cs" />
+    <Compile Include="Maybe.cs" />
+    <Compile Include="Maybe`1.cs" />
+    <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetExtensions.cs" />
+    <Compile Include="StringExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
