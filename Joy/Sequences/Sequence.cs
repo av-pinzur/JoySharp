@@ -189,7 +189,7 @@ namespace AvP.Joy
         {
             if (source == null) throw new ArgumentNullException("source");
             return F<int>.Loop(source, 0, 
-                (s, count, complete, recur) => s.None() ? complete(count) : recur(s.GetTail(), count + 1) );
+                loop => (s, count) => s.None() ? loop.Complete(count) : loop.Recur(s.GetTail(), count + 1) );
         }
 
         public static int Count<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -288,7 +288,7 @@ namespace AvP.Joy
             if (source == null) throw new ArgumentNullException("source");
             if (source.None()) throw new InvalidOperationException("Sequence is empty.");
             return F<TSource>.Loop(source, 
-                (s, complete, recur) => F.Let(s.GetTail(), tail => tail.None() ? complete(s.Head) : recur(tail)));
+                loop => s => F.Let(s.GetTail(), tail => tail.None() ? loop.Complete(s.Head) : loop.Recur(tail)));
         }
 
         public static TSource Last<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -391,8 +391,8 @@ namespace AvP.Joy
             if (accumulator == null) throw new ArgumentNullException("accumulator");
             
             return F<TAccumulate>.Loop(source, seed, 
-                (current, accumulated, complete, recur) =>
-                    !current.Any ? complete(accumulated) : recur(current.GetTail(), accumulator(accumulated, current.Head)) );
+                loop => (current, accumulated) =>
+                    !current.Any ? loop.Complete(accumulated) : loop.Recur(current.GetTail(), accumulator(accumulated, current.Head)) );
         }
 
         public static TResult Aggregate<TSource, TAccumulate, TResult>(this ISequence<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> accumulator, Func<TAccumulate, TResult> resultSelector)
@@ -458,8 +458,6 @@ namespace AvP.Joy
             if (predicate == null) throw new ArgumentNullException("predicate");
 
             return new WrappedSequence<TSource>(source.SkipWhile(o => !predicate(o)), tail => tail.Where(predicate));
-            return F.Let(source.SkipWhile(o => !predicate(o)),
-                s => new LazySequence<TSource>(s.Head, () => s.GetTail().Where(predicate)) );
         }
 
         public static ISequence<TSource> Where<TSource>(this ISequence<TSource> source, Func<TSource, int, bool> predicate)
@@ -544,9 +542,6 @@ namespace AvP.Joy
             return count > 0
                 ? new WrappedSequence<TSource>(source, tail => tail.Take(count - 1))
                 : Empty<TSource>();
-            return source.Any && count > 0
-                ? new LazySequence<TSource>(source.Head, () => source.GetTail().Take(count - 1))
-                : Empty<TSource>();
         }
 
         public static ISequence<TSource> TakeWhile<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -556,9 +551,6 @@ namespace AvP.Joy
 
             return source.Any && predicate(source.Head)
                 ? new WrappedSequence<TSource>(source, tail => tail.TakeWhile(predicate))
-                : Empty<TSource>();
-            return source.Any && predicate(source.Head)
-                ? new LazySequence<TSource>(source.Head, () => source.GetTail().TakeWhile(predicate))
                 : Empty<TSource>();
         }
 
@@ -576,7 +568,7 @@ namespace AvP.Joy
             if (count < 0) throw new ArgumentOutOfRangeException("count", "Parameter must be zero or greater.");
 
             return F<ISequence<TSource>>.Loop(source, count, 
-                (s, c, complete, recur) => s.None() || c == 0 ? complete(s) : recur(s.GetTail(), c - 1) );
+                loop => (s, c) => s.None() || c == 0 ? loop.Complete(s) : loop.Recur(s.GetTail(), c - 1) );
         }
 
         public static ISequence<TSource> SkipWhile<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -585,7 +577,7 @@ namespace AvP.Joy
             if (predicate == null) throw new ArgumentNullException("predicate");
 
             return F<ISequence<TSource>>.Loop(source,
-                (s, complete, recur) => s.None() || !predicate(s.Head) ? complete(s) : recur(s.GetTail()) );
+                loop => (s) => s.None() || !predicate(s.Head) ? loop.Complete(s) : loop.Recur(s.GetTail()) );
         }
 
         public static ISequence<TSource> SkipWhile<TSource>(this ISequence<TSource> source, Func<TSource, int, bool> predicate)

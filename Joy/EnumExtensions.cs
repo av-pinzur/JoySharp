@@ -18,8 +18,8 @@ namespace AvP.Joy
             if (!value.IsDefined()) throw new ArgumentOutOfRangeException("value", value, "Parameter must be a member of the {0} enum.");
 
             var valueName = value.ToString();
-            var displayNameAttribute = value.GetType().GetMember(valueName).Single().GetCustomAttribute<DescriptionAttribute>(false);
-            return displayNameAttribute == null ? valueName : displayNameAttribute.Description;
+            var descriptionAttribute = value.GetType().GetMember(valueName).Single().GetCustomAttribute<DescriptionAttribute>(false);
+            return descriptionAttribute == null ? valueName : descriptionAttribute.Description;
         }
     }
 }

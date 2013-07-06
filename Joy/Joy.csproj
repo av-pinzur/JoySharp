@@ -44,6 +44,7 @@
     <Compile Include="ComparableExtensions.cs" />
     <Compile Include="ComparerExtensions.cs" />
     <Compile Include="ComparerBase.cs" />
+    <Compile Include="DelegatingComparer.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="IOExtensions.cs" />

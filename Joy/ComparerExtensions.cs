@@ -45,8 +45,23 @@ namespace AvP.Joy
         public static int CompareOr<T>(this IComparer<T> comparer, T x, T y, int fallbackResult)
         {
             if (comparer == null) throw new ArgumentNullException("comparer");
-
             return comparer.CompareOr(x, y, () => fallbackResult);
+        }
+
+        public static IComparer<T> AsComparer<T>(this Comparison<T> comparison)
+        {
+            return new DelegatingComparer<T>(comparison);
+        }
+
+        public static IComparer<T> AsComparer<T>(this Func<T, T, int> comparison)
+        {
+            return new DelegatingComparer<T>((x, y) => comparison(x, y));
+        }
+
+        public static IComparer<T> Reverse<T>(this IComparer<T> comparer)
+        {
+            if (comparer == null) throw new ArgumentNullException("comparer");
+            return new DelegatingComparer<T>((x, y) => -comparer.Compare(x, y));
         }
     }
 }

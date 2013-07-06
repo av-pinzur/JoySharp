@@ -16,6 +16,8 @@ namespace AvP.Joy.Test
             MyEnum undefined = (MyEnum)3;
             Assert.IsTrue(defined.IsDefined());
             Assert.IsFalse(undefined.IsDefined());
+
+            Assert.IsFalse(((Enum)undefined).IsDefined());
         }
 
         [TestMethod]

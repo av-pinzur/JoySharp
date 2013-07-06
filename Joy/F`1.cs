@@ -1,39 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public static class F<TResult>
     {
         #region YEval
 
-        public static TResult YEval<T>(T arg, F.YBody<T, TResult> body)
+        public static TResult YEval<T>(T initialArg, F.YBody<T, TResult> body)
         {
-            return F.Y(body)(arg);
+            return F.Y(body)(initialArg);
         }
 
-        //public static TResult YEval(F.YBody<TResult> body)
-        //{
-        //    return F.Y(body)();
-        //}
-
-        public static TResult YEval<T1, T2>(T1 arg1, T2 arg2, F.YBody<T1, T2, TResult> body)
+        public static TResult YEval<T1, T2>(T1 initialArg1, T2 initialArg2, F.YBody<T1, T2, TResult> body)
         {
-            return F.Y(body)(arg1, arg2);
+            return F.Y(body)(initialArg1, initialArg2);
         }
 
-        public static TResult YEval<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3, F.YBody<T1, T2, T3, TResult> body)
+        public static TResult YEval<T1, T2, T3>(T1 initialArg1, T2 initialArg2, T3 initialArg3, F.YBody<T1, T2, T3, TResult> body)
         {
-            return F.Y(body)(arg1, arg2, arg3);
+            return F.Y(body)(initialArg1, initialArg2, initialArg3);
         }
 
-        public static TResult YEval<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, F.YBody<T1, T2, T3, T4, TResult> body)
+        public static TResult YEval<T1, T2, T3, T4>(T1 initialArg1, T2 initialArg2, T3 initialArg3, T4 initialArg4, F.YBody<T1, T2, T3, T4, TResult> body)
         {
-            return F.Y(body)(arg1, arg2, arg3, arg4);
+            return F.Y(body)(initialArg1, initialArg2, initialArg3, initialArg4);
         }
 
         #endregion

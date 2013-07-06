@@ -9,7 +9,7 @@ namespace AvP.Joy.Test
         [TestMethod]
         public void TestLoop()
         {
-            Func<int, int> factorial = n => F.Loop<int, int, int>(n, 1, (cnt, acc, complete, recur) => cnt == 0 ? complete(acc) : recur(cnt - 1, acc * cnt));
+            Func<int, int> factorial = n => F.Loop<int, int, int>(n, 1, loop => (cnt, acc) => cnt == 0 ? loop.Complete(acc) : loop.Recur(cnt - 1, acc * cnt));
             Assert.AreEqual(120, factorial(5));
         }
 
