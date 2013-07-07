@@ -1,4 +1,7 @@
-﻿namespace AvP.Joy
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace AvP.Joy
 {
     public static class IntExtensions
     {
@@ -18,5 +21,17 @@
         public static bool IsEven(this sbyte value) { return !value.IsOdd(); }
         public static bool IsOdd(this byte value) { return value % 2 == 1; }
         public static bool IsEven(this byte value) { return !value.IsOdd(); }
+
+        public static bool DividesBy(this int value, int divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this uint value, uint divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this short value, short divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this ushort value, ushort divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this long value, long divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this ulong value, ulong divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this sbyte value, sbyte divisor) { return value % divisor == 0; }
+        public static bool DividesBy(this byte value, byte divisor) { return value % divisor == 0; }
+
+        public static int DigitSum(this int value) { return value.Digits().Sum(); }
+        public static IEnumerable<int> Digits(this int value) { return value < 0 ? Digits(-value) : value < 10 ? value.InSingleton() : (value % 10).FollowedBy(Digits(value / 10)); }
     }
 }

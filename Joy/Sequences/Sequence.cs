@@ -226,7 +226,7 @@ namespace AvP.Joy
         }
 
         #endregion
-        #region Single, SingleOrDefault, First, FirstOrDefault, Last, LastOrDefault
+        #region Single, SingleOrDefault, First, FirstOrDefault, Nth, NthOrDefault, Last, LastOrDefault
 
         public static TSource Single<TSource>(this ISequence<TSource> source)
         {
@@ -259,7 +259,12 @@ namespace AvP.Joy
         public static TSource First<TSource>(this ISequence<TSource> source)
         {
             if (source == null) throw new ArgumentNullException("source");
-            if (source.None()) throw new InvalidOperationException("Sequence is empty.");
+            return FirstImpl(source, "Sequence is empty.");
+        }
+
+        private static TSource FirstImpl<TSource>(ISequence<TSource> source, string emptyExcMsg)
+        {
+            if (source.None()) throw new InvalidOperationException(emptyExcMsg);
             return source.Head;
         }
 
@@ -267,7 +272,7 @@ namespace AvP.Joy
         {
             if (source == null) throw new ArgumentNullException("source");
             if (predicate == null) throw new ArgumentNullException("predicate");
-            return source.SkipWhile(o => !predicate(o)).First();
+            return FirstImpl(source.SkipWhile(o => !predicate(o)), "Sequence contains no elements meeting the specified criteria.");
         }
 
         public static TSource FirstOrDefault<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
@@ -281,6 +286,32 @@ namespace AvP.Joy
             if (source == null) throw new ArgumentNullException("source");
             if (predicate == null) throw new ArgumentNullException("predicate");
             return source.SkipWhile(o => !predicate(o)).FirstOrDefault(defaultValue);
+        }
+
+        public static TSource Nth<TSource>(this ISequence<TSource> source, int zeroBasedIndex)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return FirstImpl(source.Skip(zeroBasedIndex), "Sequence contains too few elements.");
+        }
+
+        public static TSource Nth<TSource>(this ISequence<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            return FirstImpl(source.Where(predicate).Skip(zeroBasedIndex), "Sequence contains too few elements meeting the specified critieria.");
+        }
+
+        public static TSource NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, TSource defaultValue = default(TSource))
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return source.Skip(zeroBasedIndex).FirstOrDefault(defaultValue);
+        }
+
+        public static TSource NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource defaultValue = default(TSource))
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            return source.Where(predicate).NthOrDefault(zeroBasedIndex, defaultValue);
         }
 
         public static TSource Last<TSource>(this ISequence<TSource> source)
@@ -426,32 +457,6 @@ namespace AvP.Joy
                     : new LazySequence<TResult>(resultSelector(s.Head, index), () => self(s.GetTail(), index + 1) ) );
         }
 
-        private static ISequence<Tuple<TSource, int>> Index<TSource>(this ISequence<TSource> source)
-        {
-            return source.Select((o, i) => Tuple.Create(o, i));
-        }
-
-        private static ISequence<TSource> Unindex<TSource>(this ISequence<Tuple<TSource, int>> source)
-        {
-            return source.Select(t => t.Item1);
-        }
-
-        private static ISequence<TResult> ApplyWithIndex<TSource, TFuncResult, TResult>(
-            Func<ISequence<Tuple<TSource, int>>, Func<Tuple<TSource, int>, TFuncResult>, ISequence<Tuple<TResult, int>>> operation,
-            ISequence<TSource> source,
-            Func<TSource, int, TFuncResult> function)
-        {
-            return Unindex(ApplyWithIndexFlat(operation, source, function));
-        }
-
-        private static TResult ApplyWithIndexFlat<TSource, TFuncResult, TResult>(
-            Func<ISequence<Tuple<TSource, int>>, Func<Tuple<TSource, int>, TFuncResult>, TResult> operation,
-            ISequence<TSource> source,
-            Func<TSource, int, TFuncResult> function)
-        {
-            return operation(Index(source), t => function(t.Item1, t.Item2));
-        }
-
         public static ISequence<TSource> Where<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -466,6 +471,35 @@ namespace AvP.Joy
             if (predicate == null) throw new ArgumentNullException("predicate");
 
             return ApplyWithIndex(Where, source, predicate);
+        }
+
+        #endregion
+        #region Index, Unindex
+
+        public static ISequence<Indexed<TSource>> Index<TSource>(this ISequence<TSource> source)
+        {
+            return source.Select((o, i) => new Indexed<TSource>(i, o));
+        }
+
+        public static ISequence<TSource> Unindex<TSource>(this ISequence<Indexed<TSource>> source)
+        {
+            return source.Select(t => t.Value);
+        }
+
+        private static ISequence<TResult> ApplyWithIndex<TSource, TFuncResult, TResult>(
+            Func<ISequence<Indexed<TSource>>, Func<Indexed<TSource>, TFuncResult>, ISequence<Indexed<TResult>>> operation,
+            ISequence<TSource> source,
+            Func<TSource, int, TFuncResult> function)
+        {
+            return Unindex(ApplyWithIndexFlat(operation, source, function));
+        }
+
+        private static TResult ApplyWithIndexFlat<TSource, TFuncResult, TResult>(
+            Func<ISequence<Indexed<TSource>>, Func<Indexed<TSource>, TFuncResult>, TResult> operation,
+            ISequence<TSource> source,
+            Func<TSource, int, TFuncResult> function)
+        {
+            return operation(Index(source), t => function(t.Value, t.Index));
         }
 
         #endregion
@@ -516,7 +550,7 @@ namespace AvP.Joy
             if (collectionSelector == null) throw new ArgumentNullException("collectionSelector");
             if (resultSelector == null) throw new ArgumentNullException("resultSelector");
 
-            Func<Tuple<TSource, int>, TCollection, TResult> _resultSelector = (s, c) => resultSelector(s.Item1, c);
+            Func<Indexed<TSource>, TCollection, TResult> _resultSelector = (s, c) => resultSelector(s.Value, c);
             return ApplyWithIndexFlat(
                 (_source, _collectionSelector) => SelectMany(_source, _collectionSelector, _resultSelector), 
                 source, 

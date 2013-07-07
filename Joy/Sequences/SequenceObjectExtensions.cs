@@ -33,5 +33,10 @@ namespace AvP.Joy
         {
             return (nullableValue ?? default(TValue)).InSingletonSeqIf(nullableValue.HasValue);
         }
+
+        public static ISequence<TValue> FollowedBySeq<TValue>(this TValue head, ISequence<TValue> tail)
+        {
+            return new LinkedSequence<TValue>(head, tail);
+        }
     }
 }
