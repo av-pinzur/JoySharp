@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AvP.Joy
 {
@@ -11,6 +7,12 @@ namespace AvP.Joy
         public static bool IsDigit(this char value)
         {
             return char.IsDigit(value);
+        }
+
+        public static int ToDigit(this char value)
+        {
+            if (!value.IsDigit()) throw new ArgumentOutOfRangeException("value", value, "Parameter must be a decimal digit.");
+            return (int)value - (int)'0';
         }
     }
 }
