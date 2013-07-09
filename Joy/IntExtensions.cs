@@ -31,7 +31,13 @@ namespace AvP.Joy
         public static bool DividesBy(this sbyte value, sbyte divisor) { return value % divisor == 0; }
         public static bool DividesBy(this byte value, byte divisor) { return value % divisor == 0; }
 
-        public static int DigitSum(this int value) { return value.Digits().Sum(); }
-        public static IEnumerable<int> Digits(this int value) { return value < 0 ? Digits(-value) : value < 10 ? value.InSingleton() : (value % 10).FollowedBy(Digits(value / 10)); }
+        public static int DigitSum(this int value, int digitBase = 10) { return value.Digits(digitBase).Sum(); }
+
+        public static IEnumerable<int> Digits(this int value, int digitBase = 10)
+        {
+            return value < 0 ? Digits(-value) 
+                : value < digitBase ? value.InSingleton() 
+                : (value % digitBase).FollowedBy(Digits(value / digitBase));
+        }
     }
 }
