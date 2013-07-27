@@ -46,6 +46,11 @@
     <Compile Include="ComparerBase.cs" />
     <Compile Include="DelegatingComparer.cs" />
     <Compile Include="Indexed.cs" />
+    <Compile Include="Proxies\TargetedProxyBase.cs" />
+    <Compile Include="Proxies\RenewableProxy.cs" />
+    <Compile Include="Proxies\HotSwapProxyBase.cs" />
+    <Compile Include="Proxies\LocalProxy`1.cs" />
+    <Compile Include="Proxies\HotSwapProxy.cs" />
     <Compile Include="ReaderWriterLockSlimExtensions.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="EnumExtensions.cs" />
@@ -69,6 +74,7 @@
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SetExtensions.cs" />
+    <Compile Include="Proxies\LocalProxy.cs" />
     <Compile Include="StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup />

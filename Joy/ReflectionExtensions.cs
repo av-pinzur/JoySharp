@@ -17,5 +17,19 @@ namespace AvP.Joy
             if (source == null) throw new ArgumentNullException("source");
             return (TAttribute[]) source.GetCustomAttributes(typeof(TAttribute), inherit);
         }
+
+        public static bool SignatureEquals(this MethodInfo first, MethodInfo second)
+        {
+            if (first == null) throw new ArgumentNullException("first");
+            if (second == null) throw new ArgumentNullException("second");
+            var firstParameters = first.GetParameters();
+            var secondParameters = second.GetParameters();
+            return first.ReturnType == second.ReturnType
+                && firstParameters.Length == secondParameters.Length
+                && Enumerable.Range(0, firstParameters.Length).All(i =>
+                    firstParameters[i].ParameterType == secondParameters[i].ParameterType
+                        && firstParameters[i].IsIn == secondParameters[i].IsIn
+                        && firstParameters[i].IsOut == secondParameters[i].IsOut );
+        }
     }
 }

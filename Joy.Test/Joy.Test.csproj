@@ -51,12 +51,15 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ArrayExtensionsTest.cs" />
+    <Compile Include="HelpedTest.cs" />
     <Compile Include="SelectiveComparerTest.cs" />
     <Compile Include="SequenceTest.cs" />
     <Compile Include="EnumerableExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FTest.cs" />
     <Compile Include="EnumExtensionsTest.cs" />
+    <Compile Include="ReflectionExtensionTest.cs" />
+    <Compile Include="ProxiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Joy\Joy.csproj">
