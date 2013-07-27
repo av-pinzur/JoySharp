@@ -1,4 +1,4 @@
-﻿namespace AvP.Joy
+﻿namespace AvP.Joy.Sequences
 {
     /// <summary>A stateless alternative to <see cref="System.Collections.Generic.IEnumerable{T}"/>/<see cref="System.Collections.Generic.IEnumerator{T}"/>.</summary>
     /// <typeparam name="T">The type of objects in the sequence.</typeparam>

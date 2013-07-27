@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AvP.Joy
+namespace AvP.Joy.Sequences
 {
     public static class SequenceObjectExtensions
     {

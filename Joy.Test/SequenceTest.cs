@@ -1,6 +1,7 @@
 ﻿using System;
 using Enumerable = System.Linq.Enumerable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AvP.Joy.Sequences;
 
 namespace AvP.Joy.Test
 {

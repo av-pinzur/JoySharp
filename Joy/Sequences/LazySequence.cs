@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace AvP.Joy
+namespace AvP.Joy.Sequences
 {
     public sealed class LazySequence<T> : ISequence<T>
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AvP.Joy
+namespace AvP.Joy.Sequences
 {
     internal sealed class ConcatSequence<T> : ISequence<T>
     {

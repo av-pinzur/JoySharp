@@ -5,6 +5,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using System.Reflection;
+using AvP.Joy.Enumerables;
 
 namespace AvP.Joy.Proxies
 {
@@ -26,15 +27,10 @@ namespace AvP.Joy.Proxies
                 throw new ArgumentException("Argument must not be empty.", "supportedInterfaces");
             if (this.supportedInterfaces.Contains(null))
                 throw new ArgumentException("Argument elements must not be null.", "supportedInterfaces");
-            if (!this.supportedInterfaces.All(CanProxy))
+            if (this.supportedInterfaces.Any(t => !t.IsInterface))
                 throw new ArgumentException("Argument elements must be interface types.", "supportedInterfaces");
 
             this.innerProxy = new LocalRealProxy(this);
-        }
-
-        public static bool CanProxy(Type type)
-        {
-            return type.IsInterface;  // || typeof(MarshalByRefObject).IsAssignableFrom(type);
         }
 
         protected abstract object Invoke(MethodInfo method, object[] parameters);

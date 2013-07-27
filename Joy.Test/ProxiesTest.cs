@@ -16,7 +16,7 @@ namespace AvP.Joy.Test
         private delegate int WeirdArgs(int a, ref int b, out int c);
 
         [TestMethod]
-        public void TestArgumentPassing()
+        public void TestProxyArgumentPassing()
         {
             var subject = LocalProxy<IWeirdArgs>.DelegatingSingleMethodTo(
                 (WeirdArgs) delegate(int a, ref int b, out int c)
@@ -84,9 +84,17 @@ namespace AvP.Joy.Test
 
             transparentProxy = new PassThroughProxy(new MockA(), typeof(IA));
             AssertThrows(typeof(InvalidCastException), () => ((IA)transparentProxy).GetA());
+        }
 
-            //transparentProxy = new PassThroughProxy(new MockA(), typeof(MockA));
-            //AssertThrows(typeof(InvalidCastException), () => ((MockA)transparentProxy).GetA());
+        [TestMethod]
+        public void TestProxyDisposable()
+        {
+            int x;
+            using (LocalProxy<IDisposable>
+                    .DelegatingSingleMethodTo((Action) delegate() { x = int.MaxValue; })
+                    .GetTransparentProxy() )
+                x = 0;
+            Assert.AreEqual(int.MaxValue, x);
         }
     }
 }

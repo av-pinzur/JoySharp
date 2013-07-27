@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AvP.Joy
+namespace AvP.Joy.Sequences
 {
     public struct LinkedSequence<T> : ISequence<T>
     {

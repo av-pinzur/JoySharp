@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using AvP.Joy.Enumerables;
 
 namespace AvP.Joy.Proxies
 {
@@ -18,9 +19,9 @@ namespace AvP.Joy.Proxies
             return new DelegatingLocalProxy(invoker);
         }
 
-        public static LocalProxy<TInterface> DelegatingSingleMethodTo(Delegate implementation)
+        public static LocalProxy<TInterface> DelegatingSingleMethodTo(Delegate target)
         {
-            if (implementation == null) throw new ArgumentNullException("implementation");
+            if (target == null) throw new ArgumentNullException("target");
             
             var type = typeof(TInterface);
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
@@ -33,10 +34,10 @@ namespace AvP.Joy.Proxies
                 throw new ArgumentException("Type argument must declare a method.", "TInterface");
             if (methods.Count > 1)
                 throw new ArgumentException("Type argument must not declare more than method.", "TInterface");
-            if (!methods[0].SignatureEquals(implementation.Method))
-                throw new ArgumentException("Argument must have same signature as TInterface's method.", "implementation");
+            if (!methods[0].SignatureEquals(target.Method))
+                throw new ArgumentException("Argument must have same signature as TInterface's method.", "target");
             
-            return DelegatingTo((m, args) => implementation.DynamicInvoke(args));
+            return DelegatingTo((m, args) => target.DynamicInvoke(args));
         }
 
         public new TInterface GetTransparentProxy()

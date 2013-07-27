@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AvP.Joy.Sequences;
 
-namespace AvP.Joy
+namespace AvP.Joy.Enumerables
 {
     public static class EnumerableExtensions
     {
