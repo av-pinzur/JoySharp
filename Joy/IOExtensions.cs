@@ -22,7 +22,7 @@ namespace AvP.Joy
                 yield return buffer;
         }
 
-        public static void Write(this TextWriter target, IEnumerable<char> values)
+        public static void WriteChars(this TextWriter target, IEnumerable<char> values)
         {
             if (target == null) throw new ArgumentNullException("target");
             if (values == null) throw new ArgumentNullException("values");
@@ -30,12 +30,12 @@ namespace AvP.Joy
                 target.Write(o);
         }
 
-        public static void Write(this TextWriter target, IEnumerable<string> values)
+        public static void WriteLines(this TextWriter target, IEnumerable<string> values)
         {
             if (target == null) throw new ArgumentNullException("target");
             if (values == null) throw new ArgumentNullException("values");
             foreach (var o in values)
-                target.Write(o);
+                target.WriteLine(o);
         }
     }
 }
