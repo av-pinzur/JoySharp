@@ -96,5 +96,20 @@ namespace AvP.Joy.Test
                 x = 0;
             Assert.AreEqual(int.MaxValue, x);
         }
+
+        private interface ISettable { object Prop { set; } }
+        private interface IGettable { object Prop { get; } }
+
+        [TestMethod]
+        public void TestProxyProperties()
+        {
+            object dummy = null;
+            ISettable settable = LocalProxy<ISettable>.DelegatingSingleMethodTo((Action<object>)delegate(object o) { dummy = o; }).GetTransparentProxy();
+            settable.Prop = int.MaxValue;
+            Assert.AreEqual(int.MaxValue, dummy);
+
+            IGettable gettable = LocalProxy<IGettable>.DelegatingSingleMethodTo((Func<object>)(() => int.MinValue)).GetTransparentProxy();
+            Assert.AreEqual(int.MinValue, gettable.Prop);
+        }
     }
 }

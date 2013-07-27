@@ -14,9 +14,10 @@ namespace AvP.Joy.Proxies
 
         public LocalProxy() : base(typeof(TInterface)) {}
 
-        public static LocalProxy<TInterface> DelegatingTo(Func<MethodInfo, object[], object> invoker)
+        public static LocalProxy<TInterface> DelegatingTo(Func<MethodInfo, object[], object> invocationHandler)
         {
-            return new DelegatingLocalProxy(invoker);
+            if (invocationHandler == null) throw new ArgumentNullException("invocationHandler");
+            return new DelegatingLocalProxy(invocationHandler);
         }
 
         public static LocalProxy<TInterface> DelegatingSingleMethodTo(Delegate target)
@@ -26,14 +27,15 @@ namespace AvP.Joy.Proxies
             var type = typeof(TInterface);
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
             var methods = type.GetMethods(bindingFlags)
-                .Concat(type.GetProperties(bindingFlags).SelectMany(p => p.GetAccessors()))
                 .Where(m => m.DeclaringType != typeof(object))
                 .ToList();
 
             if (methods.Count < 1) 
                 throw new ArgumentException("Type argument must declare a method.", "TInterface");
             if (methods.Count > 1)
-                throw new ArgumentException("Type argument must not declare more than method.", "TInterface");
+                throw new ArgumentException(string.Format(
+                    "Type argument must not declare more than method. Declared methods: {0}.", 
+                    methods.Select(m => m.DeclaringType.Name + '.' + m.Name).Join(", ")), "TInterface");
             if (!methods[0].SignatureEquals(target.Method))
                 throw new ArgumentException("Argument must have same signature as TInterface's method.", "target");
             
@@ -47,17 +49,16 @@ namespace AvP.Joy.Proxies
 
         private sealed class DelegatingLocalProxy : LocalProxy<TInterface>
         {
-            private readonly Func<MethodInfo, object[], object> invoker;
+            private readonly Func<MethodInfo, object[], object> invocationHandler;
 
-            public DelegatingLocalProxy(Func<MethodInfo, object[], object> invoker)
+            public DelegatingLocalProxy(Func<MethodInfo, object[], object> invocationHandler)
             {
-                if (invoker == null) throw new ArgumentNullException("invoker");
-                this.invoker = invoker;
+                this.invocationHandler = invocationHandler;
             }
 
             protected override object Invoke(MethodInfo method, object[] parameters)
             {
-                return invoker(method, parameters);
+                return invocationHandler(method, parameters);
             }
         }
     }
