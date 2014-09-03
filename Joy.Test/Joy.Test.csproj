@@ -60,6 +60,7 @@
     <Compile Include="EnumExtensionsTest.cs" />
     <Compile Include="ReflectionExtensionTest.cs" />
     <Compile Include="ProxiesTest.cs" />
+    <Compile Include="MaybeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Joy\Joy.csproj">

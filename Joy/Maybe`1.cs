@@ -11,6 +11,7 @@ namespace AvP.Joy
         public static Maybe<T> None { get { return new Maybe<T>(false, default(T)); } }
         public static Maybe<T> If(bool condition, Func<T> valueGetter) { return condition ? Some(valueGetter()) : None; }
 
+        /// <remarks>Remember - implicit conversion operator isn't available when the type of <param name="value"/> is an interface. Use <see cref="Maybe`0.Some"/> instead.</remarks>
         public static implicit operator Maybe<T>(T value) { return Some(value); }
 
         // Note: this struct has an implicit parameterless constructor as follows:
