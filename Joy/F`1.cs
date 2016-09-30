@@ -48,5 +48,11 @@
         }
 
         #endregion
+        #region Id
+
+        public static T Id<T>(T value)
+            => value;
+
+        #endregion
     }
 }

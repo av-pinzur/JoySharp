@@ -218,5 +218,100 @@ namespace AvP.Joy.Enumerables
         {
             return source ?? Enumerable.Empty<TSource>();
         }
+
+        public static bool IsDistinct<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> comparer = null)
+        {
+            var visited = new HashSet<TSource>(comparer);
+            foreach (var o in source)
+            {
+                if (visited.Contains(o))
+                    return false;
+
+                visited.Add(o);
+            }
+            return true;
+        }
+
+        #region ToDictionary, ToSortedDictionary
+
+        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IEqualityComparer<TKey> comparer = null)
+            => source.ToDictionary(pair => pair.Key, pair => pair.Value, comparer);
+
+        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IEqualityComparer<TKey> comparer = null)
+            => source.ToDictionary(pair => pair.Item1, pair => pair.Item2, comparer);
+
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IComparer<TKey> comparer = null)
+            => source.ToSortedDictionary(pair => pair.Key, pair => pair.Value, comparer);
+
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IComparer<TKey> comparer = null)
+            => source.ToSortedDictionary(pair => pair.Item1, pair => pair.Item2, comparer);
+
+        public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer = null)
+            => source.ToSortedDictionary(keySelector, F<TSource>.Id, comparer);
+
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IComparer<TKey> comparer = null)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            if (null == keySelector) throw new ArgumentNullException(nameof(keySelector));
+            if (null == elementSelector) throw new ArgumentNullException(nameof(elementSelector));
+
+            var result = new SortedDictionary<TKey, TElement>(comparer);
+            foreach (var o in source)
+                result.Add(keySelector(o), elementSelector(o));
+            return result;
+        }
+
+        #endregion
+        #region Nth, NthOrDefault
+
+        public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
+            => source.Skip(zeroBasedIndex).First();
+
+        public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
+            => source.Skip(zeroBasedIndex).First(predicate);
+
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
+            => source.Skip(zeroBasedIndex).FirstOrDefault();
+
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
+            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate);
+
+        #endregion
+        #region Batch, Buffer
+
+        public static IEnumerable<TResult> Batch<TSource, TResult>(this IEnumerable<TSource> source, int size, Func<IEnumerable<TSource>, TResult> resultSelector)
+            => source.Batch(size).Select(resultSelector);
+
+        public static IEnumerable<IEnumerable<TSource>> Batch<TSource>(this IEnumerable<TSource> source, int size)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            if (size < 1) throw new ArgumentOutOfRangeException(nameof(size));
+
+            return source.BatchImpl(size);
+        }
+
+        private static IEnumerable<IEnumerable<TSource>> BatchImpl<TSource>(this IEnumerable<TSource> source, int size)
+        {
+            using (var e = source.GetEnumerator())
+            {
+                while (e.MoveNext())
+                    yield return e.GetBatch(size);
+            }
+        }
+
+        private static IEnumerable<TSource> GetBatch<TSource>(this IEnumerator<TSource> source, int size)
+        {
+            yield return source.Current;
+            for (int i = 1; i < size && source.MoveNext(); i++)
+                yield return source.Current;
+        }
+
+        public static IEnumerable<IReadOnlyList<TSource>> Buffer<TSource>(this IEnumerable<TSource> source, int size)
+            => source.Batch(size, Enumerable.ToList);
+
+        public static IEnumerable<TResult> Buffer<TSource, TResult>(this IEnumerable<TSource> source, int size, Func<IReadOnlyList<TSource>, TResult> resultSelector)
+            => source.Buffer(size).Select(resultSelector);
+
+        #endregion
     }
 }
