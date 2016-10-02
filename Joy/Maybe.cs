@@ -8,9 +8,6 @@ namespace AvP.Joy
         public static Maybe<T> Some<T>(T value) 
             => Maybe<T>.Some(value);
 
-        public static Maybe<T> If<T>(bool condition, T value)
-            => Maybe<T>.If(condition, value);
-
         public static Maybe<T> If<T>(bool condition, Func<T> valueGetter) 
             => Maybe<T>.If(condition, valueGetter);
 

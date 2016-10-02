@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AvP.Joy.Sequences;
 
 namespace AvP.Joy.Enumerables
@@ -537,13 +535,20 @@ namespace AvP.Joy.Enumerables
         */
 
         #endregion
-        #region AllEqual
+        #region Uniform
 
-        public static Maybe<TSource> AllEqual<TSource>(this IEnumerable<TSource> source)
-            => source.AggregateWhile(
-                Maybe<TSource>.None,
-                (acc, cur) => Maybe.If((!acc.HasValue) || Equals(acc.Value, cur), acc.ValueOrDefault(cur)),
-                acc => acc.HasValue);
+        /// <summary>Determines whether all elements in a sequence are equal to the first, returning the first if so.</summary>
+        /// <returns>A <see cref="Maybe{TSource}.Some" /> containing the single (though possibly repeated) value; otherwise <see cref="Maybe{TSource}.None"/> (if the sequence is empty or contains disparate elements).</returns>
+        public static Maybe<TSource> Uniform<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> equalityComparer = null)
+        {
+            equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
+            return source.AggregateWhile(
+                seed: Maybe<TSource>.None,
+                func: (acc, cur) => !acc.HasValue ? Maybe.Some(cur)  // Discard seed.
+                        : equalityComparer.Equals(acc.Value, cur) ? acc  // Preserve initial value.
+                            : Maybe<TSource>.None,  // Mismatch found.
+                predicate: acc => acc.HasValue);  // Short-circuit on mismatch.
+        }
 
         #endregion
         #region All, Any

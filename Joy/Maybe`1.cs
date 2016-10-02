@@ -13,14 +13,12 @@ namespace AvP.Joy
         public static Maybe<T> None { get {
             return new Maybe<T>(false, default(T)); } }
 
-        public static Maybe<T> If(bool condition, T value)
-            => condition ? Some(value) : None;
 
         public static Maybe<T> If(bool condition, Func<T> valueGetter) 
             => condition ? Some(valueGetter()) : None;
 
-        public static Maybe<T> IfNonNull(T value) 
-            => If(value != null, value);
+        public static Maybe<T> IfNonNull(T value)
+            => value != null ? Some(value) : None;
 
         /// <remarks>Remember - implicit conversion operator isn't available when the type of <param name="value"/> is an interface. Use <see cref="Maybe`0.Some"/> instead.</remarks>
         public static implicit operator Maybe<T>(T value) { return Some(value); }
