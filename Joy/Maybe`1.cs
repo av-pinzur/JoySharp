@@ -7,9 +7,20 @@ namespace AvP.Joy
         private readonly bool hasValue;
         private readonly T value;
 
-        public static Maybe<T> Some(T value) { return new Maybe<T>(true, value); }
-        public static Maybe<T> None { get { return new Maybe<T>(false, default(T)); } }
-        public static Maybe<T> If(bool condition, Func<T> valueGetter) { return condition ? Some(valueGetter()) : None; }
+        public static Maybe<T> Some(T value) 
+            => new Maybe<T>(true, value);
+
+        public static Maybe<T> None { get {
+            return new Maybe<T>(false, default(T)); } }
+
+        public static Maybe<T> If(bool condition, T value)
+            => condition ? Some(value) : None;
+
+        public static Maybe<T> If(bool condition, Func<T> valueGetter) 
+            => condition ? Some(valueGetter()) : None;
+
+        public static Maybe<T> IfNonNull(T value) 
+            => If(value != null, value);
 
         /// <remarks>Remember - implicit conversion operator isn't available when the type of <param name="value"/> is an interface. Use <see cref="Maybe`0.Some"/> instead.</remarks>
         public static implicit operator Maybe<T>(T value) { return Some(value); }
@@ -33,8 +44,8 @@ namespace AvP.Joy
 
         public bool Equals(Maybe<T> other)
         {
-            return Equals(this.hasValue, other.hasValue)
-                && Equals(this.value, other.value);
+            return hasValue.Equals(other.hasValue)
+                && Equals(value, other.value);
         }
 
         public override bool Equals(object obj)
@@ -45,7 +56,7 @@ namespace AvP.Joy
         public override int GetHashCode()
         {
             return hasValue.GetHashCode() 
-                ^ (value == null ? 0 : value.GetHashCode());
+                ^ value.GetHashCodeNullable();
         }
 
         public override string ToString()

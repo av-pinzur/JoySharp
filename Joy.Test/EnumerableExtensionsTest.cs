@@ -44,6 +44,13 @@ namespace AvP.Joy.Test
         }
 
         [TestMethod]
+        public void TestZip_Enumerable()
+        {
+            Assert.AreEqual("(0, 0, 0)|(1, 1, 1)",
+                (new[] { Enumerable.Range(0, 4), Enumerable.Range(0, 2), Enumerable.Range(0, 3) }).Zip(e => '(' + e.Select(o => o.ToString()).Join(", ") + ')').Join("|"));
+        }
+
+        [TestMethod]
         public void TestZipAll_Enumerable()
         {
             Assert.AreEqual("(0, 0)|(1, 1)|(2, _)|(3, _)",

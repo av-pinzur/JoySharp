@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AvP.Joy.Sequences;
 
 namespace AvP.Joy
@@ -18,6 +15,11 @@ namespace AvP.Joy
         public static string Join(this ISequence<string> source, string separator)
         {
             return source.AsEnumerable().Join(separator);
+        }
+
+        public static string[] Lines(this string value)
+        {
+            return value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
         }
 
         public static bool IsEmpty(this string value)
