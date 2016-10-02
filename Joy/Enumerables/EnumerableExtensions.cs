@@ -553,11 +553,11 @@ namespace AvP.Joy.Enumerables
         */
 
         #endregion
-        #region Uniform
+        #region Consensus
 
         /// <summary>Determines whether all elements in a sequence are equal to the first, returning the first if so.</summary>
         /// <returns>A <see cref="Maybe{TSource}.Some" /> containing the single (though possibly repeated) value; otherwise <see cref="Maybe{TSource}.None"/> (if the sequence is empty or contains disparate elements).</returns>
-        public static Maybe<TSource> Uniform<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> equalityComparer = null)
+        public static Maybe<TSource> Consensus<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> equalityComparer = null)
         {
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
             return source.AggregateWhile(
