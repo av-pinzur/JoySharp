@@ -52,6 +52,7 @@
     <Compile Include="Proxies\HotSwapProxyBase.cs" />
     <Compile Include="Proxies\LocalProxy`1.cs" />
     <Compile Include="Proxies\HotSwapProxy.cs" />
+    <Compile Include="RandomExtensions.cs" />
     <Compile Include="ReaderWriterLockSlimExtensions.cs" />
     <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="EnumExtensions.cs" />

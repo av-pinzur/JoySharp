@@ -381,7 +381,20 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region Nth, NthOrDefault
+        #region FirstOrDefault, Nth, NthOrDefault
+
+        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+
+            using (var e = source.GetEnumerator())
+                if (e.MoveNext())
+                    return e.Current;
+            return fallback;
+        }
+
+        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
+            => source.Where(predicate).FirstOrDefault(fallback);
 
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
             => source.Skip(zeroBasedIndex).First();
@@ -394,6 +407,12 @@ namespace AvP.Joy.Enumerables
 
         public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
             => source.Skip(zeroBasedIndex).FirstOrDefault(predicate);
+
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource fallback)
+            => source.Skip(zeroBasedIndex).FirstOrDefault(fallback);
+
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource fallback)
+            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate, fallback);
 
         #endregion
         #region Batch, Buffer
