@@ -129,7 +129,7 @@ namespace AvP.Joy.Enumerables
             {
                 for (int i = 0; i < sources.Count; i++)
                     e[i] = sources[i].GetEnumerator();
-                while (e.Select((o, i) => new { o, i }).Aggregate(true, (acc, cur) => acc && cur.o.MoveNext()))
+                while (e.Select((o, i) => new { o, i }).Aggregate(true, (acc, cur) => cur.o.MoveNext() && acc))
                     yield return resultSelector(e.Select((_e, i) => _e.Current));
             }
             finally
@@ -157,7 +157,7 @@ namespace AvP.Joy.Enumerables
             {
                 for (int i = 0; i < sources.Count; i++)
                     e[i] = sources[i].GetEnumerator();
-                while (e.Select((o, i) => new { o, i }).Aggregate(false, (acc, cur) => acc || (any[cur.i] = cur.o.MoveNext())))
+                while (e.Select((o, i) => new { o, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.o.MoveNext()) || acc))
                     yield return resultSelector(e.Select((_e, i) => Maybe.If(any[i], () => _e.Current)));
             }
             finally
