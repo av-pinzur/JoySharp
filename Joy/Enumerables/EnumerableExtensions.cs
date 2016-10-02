@@ -33,6 +33,24 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
+        #region Cycle
+
+        public static IEnumerable<TSource> Cycle<TSource>(params TSource[] source)
+            => source.Cycle();
+
+        public static IEnumerable<TSource> Cycle<TSource>(this IEnumerable<TSource> source)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            return CycleImpl(source);
+        }
+
+        private static IEnumerable<TSource> CycleImpl<TSource>(IEnumerable<TSource> source)
+        {
+            while (true)
+                foreach (var o in source) yield return o;
+        }
+
+        #endregion
         #region Slide
 
         public static IEnumerable<IReadOnlyList<TSource>> Slide<TSource>(this IEnumerable<TSource> source, int windowSize)
