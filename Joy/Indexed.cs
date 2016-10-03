@@ -32,8 +32,8 @@ namespace AvP.Joy
 
         public override int GetHashCode()
         {
-            return index.GetHashCode()
-                ^ (value == null ? 0 : value.GetHashCode());
+            return unchecked(index.GetHashCode()
+                * 397 ^ (value == null ? 0 : value.GetHashCode()));
         }
 
         public override string ToString()

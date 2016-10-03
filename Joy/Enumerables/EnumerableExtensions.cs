@@ -643,7 +643,7 @@ namespace AvP.Joy.Enumerables
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
-            return source.Aggregate(0, (acc, cur) => acc ^ cur.GetHashCode());
+            return source.Aggregate(0, (acc, cur) => unchecked(acc * 397 ^ cur.GetHashCode()));
         }
 
         public static bool EqualsByValuesUnordered<TSource>(
@@ -664,7 +664,7 @@ namespace AvP.Joy.Enumerables
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
-            return source.Aggregate(0, (acc, cur) => acc + cur.GetHashCode());
+            return source.Aggregate(0, (acc, cur) => unchecked(acc + cur.GetHashCode()));
         }
 
         #endregion

@@ -53,8 +53,8 @@ namespace AvP.Joy
 
         public override int GetHashCode()
         {
-            return hasValue.GetHashCode() 
-                ^ value.GetHashCodeNullable();
+            return unchecked(hasValue.GetHashCode() 
+                * 397 ^ value.GetHashCodeNullable());
         }
 
         public override string ToString()
