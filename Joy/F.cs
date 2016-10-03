@@ -216,5 +216,24 @@ namespace AvP.Joy
             => value;
 
         #endregion
+        #region
+
+        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn)
+        {
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
+
+            var cache = new Dictionary<T, TResult>();
+            return arg => cache.GetOrAdd(arg, () => fn(arg));
+        }
+
+        public static Func<T1, T2, TResult> Memoize<T1, T2, TResult>(Func<T1, T2, TResult> fn)
+        {
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
+
+            var mem = Memoize<Tuple<T1, T2>, TResult>(args => fn(args.Item1, args.Item2));
+            return (arg1, arg2) => mem(Tuple.Create(arg1, arg2));
+        }
+
+        #endregion
     }
 }

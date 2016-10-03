@@ -46,6 +46,7 @@
     <Compile Include="ComparerExtensions.cs" />
     <Compile Include="ComparerBase.cs" />
     <Compile Include="DelegatingComparer.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="Indexed.cs" />
     <Compile Include="Proxies\TargetedProxyBase.cs" />
     <Compile Include="Proxies\RenewableProxy.cs" />
