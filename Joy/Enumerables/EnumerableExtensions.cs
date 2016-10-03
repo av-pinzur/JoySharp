@@ -597,6 +597,27 @@ namespace AvP.Joy.Enumerables
             => source.Any(F.Id);
 
         #endregion
+        #region MinBy, MaxBy
+
+        public static TSource MinBy<TSource, TCompare>(this IEnumerable<TSource> source, Func<TSource, TCompare> selector) where TCompare : IComparable<TCompare>
+            => source.MinBy(selector, Comparer<TCompare>.Default);
+
+        public static TSource MinBy<TSource, TCompare>(this IEnumerable<TSource> source, Func<TSource, TCompare> selector, IComparer<TCompare> comparer)
+            => source.Aggregate((x, y) => comparer.MinBy(selector, x, y));
+
+        public static TSource MinBy<TSource>(this IEnumerable<TSource> source, IComparer<TSource> comparer)
+            => source.Aggregate(comparer.Min);
+
+        public static TSource MaxBy<TSource, TCompare>(this IEnumerable<TSource> source, Func<TSource, TCompare> selector) where TCompare : IComparable<TCompare>
+            => source.MaxBy(selector, Comparer<TCompare>.Default);
+
+        public static TSource MaxBy<TSource, TCompare>(this IEnumerable<TSource> source, Func<TSource, TCompare> selector, IComparer<TCompare> comparer)
+            => source.Aggregate((x, y) => comparer.MaxBy(selector, x, y));
+
+        public static TSource MaxBy<TSource>(this IEnumerable<TSource> source, IComparer<TSource> comparer)
+            => source.Aggregate(comparer.Max);
+
+        #endregion
         #region EqualsByValues~, GetHashCodeByValues~
 
         public static bool EqualsByValuesOrdered<TSource>(

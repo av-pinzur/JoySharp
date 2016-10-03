@@ -11,10 +11,24 @@ namespace AvP.Joy
             return comparer.Compare(first, second) <= 0 ? first : second;
         }
 
+        public static TSource MinBy<T, TSource>(this IComparer<T> comparer, Func<TSource, T> selector, TSource first, TSource second)
+        {
+            if (comparer == null) throw new ArgumentNullException("comparer");
+            if (selector == null) throw new ArgumentNullException("selector");
+            return comparer.Compare(selector(first), selector(second)) <= 0 ? first : second;
+        }
+
         public static T Max<T>(this IComparer<T> comparer, T first, T second)
         {
             if (comparer == null) throw new ArgumentNullException("comparer");
             return comparer.Compare(first, second) >= 0 ? first : second;
+        }
+
+        public static TSource MaxBy<T, TSource>(this IComparer<T> comparer, Func<TSource, T> selector, TSource first, TSource second)
+        {
+            if (comparer == null) throw new ArgumentNullException("comparer");
+            if (selector == null) throw new ArgumentNullException("selector");
+            return comparer.Compare(selector(first), selector(second)) >= 0 ? first : second;
         }
 
         public static int CompareOr<T>(this IComparer<T> comparer, T x, T y, IComparer<T> fallbackComparer)
