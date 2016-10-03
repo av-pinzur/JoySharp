@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using AvP.Joy.Sequences;
 
@@ -162,7 +161,7 @@ namespace AvP.Joy.Enumerables
             if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
 
             var sourceList = sources.ToList();
-            if (sourceList.Contains(null)) throw new ArgumentNullException(nameof(sources));
+            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
 
             return ZipAllImpl(sourceList, resultSelector);
         }
@@ -291,7 +290,7 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region Interpose
+        #region Interpose, Interleave
 
         public static IEnumerable<TSource> Interpose<TSource>(this IEnumerable<TSource> source, TSource separator)
         {
@@ -307,6 +306,35 @@ namespace AvP.Joy.Enumerables
                 if (!isFirst) yield return separator;
                 yield return o;
                 isFirst = false;
+            }
+        }
+
+        public static IEnumerable<TSource> Interleave<TSource>(this IEnumerable<IEnumerable<TSource>> sources)
+        {
+            if (null == sources) throw new ArgumentNullException(nameof(sources));
+
+            var sourceList = sources.ToList();
+            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
+
+            return InterleaveImpl(sourceList);
+        }
+
+        private static IEnumerable<TSource> InterleaveImpl<TSource>(List<IEnumerable<TSource>> sources)
+        {
+            var any = new bool[sources.Count];
+            var e = new IEnumerator<TSource>[sources.Count];
+            try
+            {
+                for (int i = 0; i < sources.Count; i++)
+                    e[i] = sources[i].GetEnumerator();
+
+                while (e.Select((o, i) => new { o, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.o.MoveNext()) || acc))
+                    for (var i = 0; i < sources.Count; i++)
+                        if (any[i]) yield return e[i].Current;
+            }
+            finally
+            {
+                foreach (var _e in e) if (_e != null) _e.Dispose();
             }
         }
 
@@ -332,9 +360,11 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region IsDistinct
+        #region IsDistinct, DistinctCounted
 
-        public static bool IsDistinct<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> equalityComparer = null)
+        public static bool IsDistinct<TSource>(
+            this IEnumerable<TSource> source, 
+            IEqualityComparer<TSource> equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
@@ -348,6 +378,17 @@ namespace AvP.Joy.Enumerables
                 visited.Add(o);
             }
             return true;
+        }
+
+        public static IEnumerable<Counted<TSource>> DistinctCounted<TSource>(
+            this IEnumerable<TSource> source, 
+            IEqualityComparer<TSource> equalityComparer = null)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
+
+            return source.GroupBy(F.Id, equalityComparer)
+                .Select(group => new Counted<TSource>(group.Key, group.Count()));
         }
 
         #endregion
@@ -618,9 +659,22 @@ namespace AvP.Joy.Enumerables
             => source.Aggregate(comparer.Max);
 
         #endregion
-        #region EqualsByValues~, GetHashCodeByValues~
+        #region OrderBy
 
-        public static bool EqualsByValuesOrdered<TSource>(
+        public static IEnumerable<TSource> OrderBy<TSource>(this IEnumerable<TSource> source, IComparer<TSource> comparer)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+            if (null == comparer) throw new ArgumentNullException(nameof(comparer));
+
+            var result = source.ToList();
+            result.Sort(comparer);
+            return result;
+        }
+
+        #endregion
+        #region EqualsByElements~, GetHashCodeByElements~, CompareByElements~
+
+        public static bool EqualsByElementsOrdered<TSource>(
             this IEnumerable<TSource> sourceA,
             IEnumerable<TSource> sourceB,
             IEqualityComparer<TSource> equalityComparer = null)
@@ -632,21 +686,21 @@ namespace AvP.Joy.Enumerables
                 equalityComparer ?? EqualityComparer<TSource>.Default);
 
             return sourceA
-                .ZipAll(sourceB, (a, b) => maybeEqualityComparer.Equals(a, b))
+                .ZipAll(sourceB, maybeEqualityComparer.Equals)
                 .All(F.Id);
         }
 
-        public static int GetHashCodeByValuesOrdered<TSource>(
+        public static int GetHashCodeByElementsOrdered<TSource>(
             this IEnumerable<TSource> source,
             IEqualityComparer<TSource> equalityComparer = null)
-        {   // TODO: Improve hash code algorithm.
+        {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
             return source.Aggregate(0, (acc, cur) => unchecked(acc * 397 ^ cur.GetHashCode()));
         }
 
-        public static bool EqualsByValuesUnordered<TSource>(
+        public static bool EqualsByElementsUnordered<TSource>(
             this IEnumerable<TSource> sourceA,
             IEnumerable<TSource> sourceB,
             IEqualityComparer<TSource> equalityComparer = null)
@@ -654,17 +708,70 @@ namespace AvP.Joy.Enumerables
             if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
             if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
 
-            return sourceA.ToHashSet(equalityComparer).SetEquals(sourceB);
+            return sourceA.DistinctCounted().ToHashSet()
+                .SetEquals(sourceB.DistinctCounted());
         }
 
-        public static int GetHashCodeByValuesUnordered<TSource>(
+        public static int GetHashCodeByElementsUnordered<TSource>(
             this IEnumerable<TSource> source,
             IEqualityComparer<TSource> equalityComparer = null)
-        {   // TODO: Improve hash code algorithm.
+        {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
             return source.Aggregate(0, (acc, cur) => unchecked(acc + cur.GetHashCode()));
+        }
+
+        public static int CompareByElementsOrdered<TSource>(
+            this IEnumerable<TSource> sourceA,
+            IEnumerable<TSource> sourceB)
+            where TSource : IComparable<TSource>
+        {
+            if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
+            if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
+
+            return sourceA.CompareByElementsOrdered(sourceB, Comparer<TSource>.Default);
+        }
+
+        public static int CompareByElementsOrdered<TSource>(
+            this IEnumerable<TSource> sourceA,
+            IEnumerable<TSource> sourceB,
+            IComparer<TSource> comparer)
+        {
+            if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
+            if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
+            if (null == comparer) throw new ArgumentNullException(nameof(comparer));
+
+            var maybeComparer = Maybe.CompareBy(comparer);
+            return sourceA
+                .ZipAll(sourceB, maybeComparer.Compare)
+                .FirstOrDefault(o => o != 0, 0);
+        }
+
+        public static int CompareByElementsUnordered<TSource>(
+            this IEnumerable<TSource> sourceA,
+            IEnumerable<TSource> sourceB)
+            where TSource : IComparable<TSource>
+        {
+            if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
+            if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
+
+            return sourceA.CompareByElementsUnordered(sourceB, Comparer<TSource>.Default);
+        }
+
+        public static int CompareByElementsUnordered<TSource>(
+            this IEnumerable<TSource> sourceA,
+            IEnumerable<TSource> sourceB,
+            IComparer<TSource> comparer)
+        {
+            if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
+            if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
+            if (null == comparer) throw new ArgumentNullException(nameof(comparer));
+
+            var maybeComparer = Maybe.CompareBy(comparer);
+            return sourceA.OrderBy(comparer)
+                .ZipAll(sourceB.OrderBy(comparer), maybeComparer.Compare)
+                .FirstOrDefault(o => o != 0, 0);
         }
 
         #endregion

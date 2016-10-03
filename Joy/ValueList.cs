@@ -21,10 +21,10 @@ namespace AvP.Joy
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) innerList).GetEnumerator();
 
         public override int GetHashCode()
-            => innerList.GetHashCodeByValuesOrdered();
+            => innerList.GetHashCodeByElementsOrdered();
 
         public bool Equals(IEnumerable<T> other)
-            => innerList.EqualsByValuesOrdered(other);
+            => innerList.EqualsByElementsOrdered(other);
 
         public override bool Equals(object obj)
         {

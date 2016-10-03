@@ -42,11 +42,13 @@
   <ItemGroup>
     <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CharExtensions.cs" />
+    <Compile Include="Counted.cs" />
     <Compile Include="ComparableExtensions.cs" />
     <Compile Include="ComparerExtensions.cs" />
     <Compile Include="ComparerBase.cs" />
     <Compile Include="DelegatingComparer.cs" />
     <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="EnumerableComparer.cs" />
     <Compile Include="Indexed.cs" />
     <Compile Include="Proxies\TargetedProxyBase.cs" />
     <Compile Include="Proxies\RenewableProxy.cs" />

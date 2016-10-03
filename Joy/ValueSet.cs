@@ -21,7 +21,7 @@ namespace AvP.Joy
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) innerSet).GetEnumerator();
 
         public override int GetHashCode()
-            => innerSet.GetHashCodeByValuesUnordered();
+            => innerSet.GetHashCodeByElementsUnordered();
 
         public bool Equals(IEnumerable<T> other)
             => innerSet.SetEquals(other);
