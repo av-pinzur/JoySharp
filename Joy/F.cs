@@ -234,6 +234,22 @@ namespace AvP.Joy
             return (arg1, arg2) => mem(Tuple.Create(arg1, arg2));
         }
 
+        public static Func<T1, T2, T3, TResult> Memoize<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> fn)
+        {
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
+
+            var mem = Memoize<Tuple<T1, T2, T3>, TResult>(args => fn(args.Item1, args.Item2, args.Item3));
+            return (arg1, arg2, arg3) => mem(Tuple.Create(arg1, arg2, arg3));
+        }
+
+        public static Func<T1, T2, T3, T4, TResult> Memoize<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> fn)
+        {
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
+
+            var mem = Memoize<Tuple<T1, T2, T3, T4>, TResult>(args => fn(args.Item1, args.Item2, args.Item3, args.Item4));
+            return (arg1, arg2, arg3, arg4) => mem(Tuple.Create(arg1, arg2, arg3, arg4));
+        }
+
         #endregion
     }
 }

@@ -48,6 +48,15 @@ namespace AvP.Joy.Test
         {
             Assert.AreEqual("(0, 0, 0)|(1, 1, 1)",
                 (new[] { Enumerable.Range(0, 4), Enumerable.Range(0, 2), Enumerable.Range(0, 3) }).Zip(e => '(' + e.Select(o => o.ToString()).Join(", ") + ')').Join("|"));
+
+            Assert.AreEqual("",
+                (new[] { Enumerable.Range(0, 4), Enumerable.Range(0, 0), Enumerable.Range(0, 3) }).Zip(e => '(' + e.Select(o => o.ToString()).Join(", ") + ')').Join("|"));
+
+            Assert.AreEqual("",
+                Enumerable.Empty<IEnumerable<int>>().Zip(e => '(' + e.Select(o => o.ToString()).Join(", ") + ')').Join("|"));
+
+            Assert.AreEqual("(0, 0, 0)|(1, 1, 1)|(2, 2, 2)",
+                (new[] { Enumerable.Range(0, 3), Enumerable.Range(0, 3), Enumerable.Range(0, 3) }).Zip(e => '(' + e.Select(o => o.ToString()).Join(", ") + ')').Join("|"));
         }
 
         [TestMethod]

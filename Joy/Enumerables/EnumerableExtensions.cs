@@ -134,6 +134,7 @@ namespace AvP.Joy.Enumerables
 
             var sourceList = sources.ToList();
             if (sourceList.Contains(null)) throw new ArgumentNullException(nameof(sources));
+            if (sourceList.None()) return Enumerable.Empty<TResult>();
 
             return ZipImpl(sourceList, resultSelector);
         }
@@ -146,7 +147,7 @@ namespace AvP.Joy.Enumerables
             {
                 for (int i = 0; i < sources.Count; i++)
                     e[i] = sources[i].GetEnumerator();
-                while (e.Select((o, i) => new { o, i }).Aggregate(true, (acc, cur) => cur.o.MoveNext() && acc))
+                while (e.Select((_e, i) => new { _e, i }).Aggregate(true, (acc, cur) => (any[cur.i] = cur._e.MoveNext()) && acc))
                     yield return resultSelector(e.Select((_e, i) => _e.Current));
             }
             finally
@@ -174,7 +175,7 @@ namespace AvP.Joy.Enumerables
             {
                 for (int i = 0; i < sources.Count; i++)
                     e[i] = sources[i].GetEnumerator();
-                while (e.Select((o, i) => new { o, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.o.MoveNext()) || acc))
+                while (e.Select((_e, i) => new { _e, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur._e.MoveNext()) || acc))
                     yield return resultSelector(e.Select((_e, i) => Maybe.If(any[i], () => _e.Current)));
             }
             finally
