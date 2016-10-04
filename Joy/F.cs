@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace AvP.Joy
 {
@@ -216,14 +213,25 @@ namespace AvP.Joy
             => value;
 
         #endregion
-        #region
+        #region Memoize
 
         public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn)
         {
             if (fn == null) throw new ArgumentNullException(nameof(fn));
 
             var cache = new Dictionary<T, TResult>();
-            return arg => cache.GetOrAdd(arg, () => fn(arg));
+            var cacheLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+            return arg =>
+            {
+                TResult result;
+                using (cacheLock.EnterReadLockDisposable())
+                    if (cache.TryGetValue(arg, out result))
+                        return result;
+
+                using (cacheLock.EnterWriteLockDisposable())
+                    return cache.GetOrAdd(arg, () => fn(arg));
+            };
         }
 
         public static Func<T1, T2, TResult> Memoize<T1, T2, TResult>(Func<T1, T2, TResult> fn)
