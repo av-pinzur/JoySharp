@@ -13,8 +13,8 @@ namespace AvP.Joy
 
         public DelegatingDisposable(Action disposer, OnExtraCall onExtraCall)
         {
-            if (disposer == null) throw new ArgumentNullException("disposer");
-            if (!onExtraCall.IsDefined()) throw new ArgumentOutOfRangeException("onExtraCall", "Parameter must be a defined member of the enumerated type.");
+            if (disposer == null) throw new ArgumentNullException(nameof(disposer));
+            if (!onExtraCall.IsDefined()) throw new ArgumentOutOfRangeException(nameof(onExtraCall), "Parameter must be a defined member of the enumerated type.");
 
             this.disposer = disposer;
             this.onExtraCall = onExtraCall;

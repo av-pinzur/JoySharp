@@ -11,13 +11,13 @@ namespace AvP.Joy.Enumerables
 
         public static IEnumerable<int> Generate(int seed, int step)
         {
-            if (step == 0) throw new ArgumentException("Parameter must not equal 0.", "step");
+            if (step == 0) throw new ArgumentException("Parameter must not equal 0.", nameof(step));
             return Generate(seed, i => i + step);
         }
 
         public static IEnumerable<T> Generate<T>(T seed, Func<T, T> step)
         {
-            if (step == null) throw new ArgumentNullException("step");
+            if (step == null) throw new ArgumentNullException(nameof(step));
             return Generate(seed, o => Maybe.Some(step(o)));
         }
 
@@ -54,8 +54,8 @@ namespace AvP.Joy.Enumerables
 
         public static IEnumerable<IReadOnlyList<TSource>> Slide<TSource>(this IEnumerable<TSource> source, int windowSize)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (windowSize < 1) throw new ArgumentOutOfRangeException("windowSize", "Parameter value must not be less than 1.");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (windowSize < 1) throw new ArgumentOutOfRangeException(nameof(windowSize), "Parameter value must not be less than 1.");
 
             IDisposable disposer;
             var sequence = source.AsSequence(out disposer);

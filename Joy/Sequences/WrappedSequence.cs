@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace AvP.Joy.Sequences
 {
@@ -10,8 +9,8 @@ namespace AvP.Joy.Sequences
 
         public WrappedSequence(ISequence<T> source, Func<ISequence<T>, ISequence<T>> tailWrapper)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (tailWrapper == null) throw new ArgumentNullException("tailWrapper");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (tailWrapper == null) throw new ArgumentNullException(nameof(tailWrapper));
 
             var sourceAs = source as WrappedSequence<T>;
             if (sourceAs != null)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AvP.Joy.Sequences;
 
 namespace AvP.Joy
@@ -24,7 +23,7 @@ namespace AvP.Joy
 
         public static bool IsEmpty(this string value)
         {
-            if (value == null) throw new ArgumentNullException("value");
+            if (value == null) throw new ArgumentNullException(nameof(value));
             return value.Length == 0;
         }
 

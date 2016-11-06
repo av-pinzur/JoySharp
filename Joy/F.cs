@@ -10,25 +10,25 @@ namespace AvP.Joy
 
         public static TResult Let<T, TResult>(T arg, Func<T, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException("fn");
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
             return fn(arg);
         }
 
         public static TResult Let<T1, T2, TResult>(T1 arg1, T2 arg2, Func<T1, T2, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException("fn");
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
             return fn(arg1, arg2);
         }
 
         public static TResult Let<T1, T2, T3, TResult>(T1 arg1, T2 arg2, T3 arg3, Func<T1, T2, T3, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException("fn");
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
             return fn(arg1, arg2, arg3);
         }
 
         public static TResult Let<T1, T2, T3, T4, TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, Func<T1, T2, T3, T4, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException("fn");
+            if (fn == null) throw new ArgumentNullException(nameof(fn));
             return fn(arg1, arg2, arg3, arg4);
         }
 
@@ -44,14 +44,14 @@ namespace AvP.Joy
 
         public static Func<T, TResult> Y<T, TResult>(YBody<T, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             Recursive<T, TResult> rec = r => arg => body(r(r))(arg);
             return rec(rec);
         }
 
         public static Func<T1, T2, TResult> Y<T1, T2, TResult>(YBody<T1, T2, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             var y = Y<Tuple<T1, T2>, TResult>(
                     self => arg => body(
                             (arg1, arg2) => self(Tuple.Create(arg1, arg2))
@@ -62,7 +62,7 @@ namespace AvP.Joy
 
         public static Func<T1, T2, T3, TResult> Y<T1, T2, T3, TResult>(YBody<T1, T2, T3, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             var y = Y<Tuple<T1, T2, T3>, TResult>(
                     self => arg => body(
                             (arg1, arg2, arg3) => self(Tuple.Create(arg1, arg2, arg3))
@@ -73,7 +73,7 @@ namespace AvP.Joy
 
         public static Func<T1, T2, T3, T4, TResult> Y<T1, T2, T3, T4, TResult>(YBody<T1, T2, T3, T4, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             var y = Y<Tuple<T1, T2, T3, T4>, TResult>(
                     self => arg => body(
                             (arg1, arg2, arg3, arg4) => self(Tuple.Create(arg1, arg2, arg3, arg4))
@@ -123,7 +123,7 @@ namespace AvP.Joy
 
         public static TResult Loop<T, TResult>(T initialArg, LoopBody<T, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<T, TResult>.Loop(
                 initialArg, 
                 arg => body(new LoopController<T, TResult>())(arg) );
@@ -131,7 +131,7 @@ namespace AvP.Joy
 
         public static TResult Loop<T1, T2, TResult>(T1 initialArg1, T2 initialArg2, LoopBody<T1, T2, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2),
                 args => body(new LoopController<T1, T2, TResult>())(args.Item1, args.Item2) );
@@ -139,7 +139,7 @@ namespace AvP.Joy
 
         public static TResult Loop<T1, T2, T3, TResult>(T1 initialArg1, T2 initialArg2, T3 initialArg3, LoopBody<T1, T2, T3, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2, T3>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2, initialArg3),
                 args => body(new LoopController<T1, T2, T3, TResult>())(args.Item1, args.Item2, args.Item3) );
@@ -147,7 +147,7 @@ namespace AvP.Joy
 
         public static TResult Loop<T1, T2, T3, T4, TResult>(T1 initialArg1, T2 initialArg2, T3 initialArg3, T4 initialArg4, LoopBody<T1, T2, T3, T4, TResult> body)
         {
-            if (body == null) throw new ArgumentNullException("body");
+            if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2, T3, T4>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2, initialArg3, initialArg4),
                 args => body(new LoopController<T1, T2, T3, T4, TResult>())(args.Item1, args.Item2, args.Item3, args.Item4) );

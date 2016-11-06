@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace AvP.Joy.Sequences
 {
@@ -10,7 +9,7 @@ namespace AvP.Joy.Sequences
 
         public LazySequence(T head, Func<ISequence<T>> tailGetter)
         {
-            if (tailGetter == null) throw new ArgumentNullException("tailGetter");
+            if (tailGetter == null) throw new ArgumentNullException(nameof(tailGetter));
 
             this.head = head;
             this.tail = new Lazy<ISequence<T>>(tailGetter);

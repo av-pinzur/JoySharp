@@ -37,7 +37,7 @@ namespace AvP.Joy
 
             public Impl(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer, SortDirection direction)
             {
-                if (comparandSelector == null) throw new ArgumentNullException("comparandSelector");
+                if (comparandSelector == null) throw new ArgumentNullException(nameof(comparandSelector));
 
                 this.comparandSelector = comparandSelector;
                 this.comparer = comparer ?? Comparer<TComparand>.Default;
@@ -57,7 +57,7 @@ namespace AvP.Joy
             public Chained(SelectiveComparer<T> previousComparer, Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer, SortDirection direction)
                 : base(comparandSelector, comparer, direction)
             {
-                if (previousComparer == null) throw new ArgumentNullException("previousComparer");
+                if (previousComparer == null) throw new ArgumentNullException(nameof(previousComparer));
                 this.previousComparer = previousComparer;
             }
 

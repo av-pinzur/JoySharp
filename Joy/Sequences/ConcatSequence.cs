@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace AvP.Joy.Sequences
 {
@@ -19,8 +17,8 @@ namespace AvP.Joy.Sequences
 
         public static ISequence<T> Create(ISequence<T> first, ISequence<T> second)
         {
-            if (first == null) throw new ArgumentNullException("first");
-            if (second == null) throw new ArgumentNullException("second");
+            if (first == null) throw new ArgumentNullException(nameof(first));
+            if (second == null) throw new ArgumentNullException(nameof(second));
 
             if (second.None()) return first;
             if (first.None()) return second;

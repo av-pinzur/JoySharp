@@ -4,10 +4,10 @@ namespace AvP.Joy.Proxies
 {
     public class RenewableProxy<TInterface> : HotSwapProxyBase<TInterface>
     {
-        private Func<TInterface> targetGetter;
+        private readonly Func<TInterface> targetGetter;
 
         public RenewableProxy(Func<TInterface> targetGetter) 
-            : base(EnsuringNotNull(targetGetter, "targetGetter")())
+            : base(EnsuringNotNull(targetGetter, nameof(targetGetter))())
         {
             this.targetGetter = targetGetter;
         }

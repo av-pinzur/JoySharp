@@ -10,7 +10,7 @@ namespace AvP.Joy.Proxies
 
         protected HotSwapProxyBase(TInterface target)
         {
-            if (target == null) throw new ArgumentNullException("target");
+            if (target == null) throw new ArgumentNullException(nameof(target));
             this.target = target;
         }
 
@@ -25,7 +25,7 @@ namespace AvP.Joy.Proxies
 
         protected void SetTarget(TInterface target)
         {
-            if (target == null) throw new ArgumentNullException("target");
+            if (target == null) throw new ArgumentNullException(nameof(target));
             using (targetLock.EnterWriteLockDisposable())
                 this.target = target;
         }

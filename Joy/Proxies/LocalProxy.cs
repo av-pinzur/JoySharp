@@ -19,16 +19,16 @@ namespace AvP.Joy.Proxies
 
         protected LocalProxy(IEnumerable<Type> supportedInterfaces)
         {
-            if (supportedInterfaces == null) throw new ArgumentNullException("supportedInterfaces");
+            if (supportedInterfaces == null) throw new ArgumentNullException(nameof(supportedInterfaces));
 
             this.supportedInterfaces = supportedInterfaces.ToList();
 
             if (this.supportedInterfaces.None())
-                throw new ArgumentException("Argument must not be empty.", "supportedInterfaces");
+                throw new ArgumentException("Argument must not be empty.", nameof(supportedInterfaces));
             if (this.supportedInterfaces.Contains(null))
-                throw new ArgumentException("Argument elements must not be null.", "supportedInterfaces");
+                throw new ArgumentException("Argument elements must not be null.", nameof(supportedInterfaces));
             if (this.supportedInterfaces.Any(t => !t.IsInterface))
-                throw new ArgumentException("Argument elements must be interface types.", "supportedInterfaces");
+                throw new ArgumentException("Argument elements must be interface types.", nameof(supportedInterfaces));
 
             this.innerProxy = new LocalRealProxy(this);
         }

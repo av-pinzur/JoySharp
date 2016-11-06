@@ -9,7 +9,7 @@ namespace AvP.Joy
 
         public DelegatingComparer(Comparison<T> comparison)
         {
-            if (comparison == null) throw new ArgumentNullException("comparison");
+            if (comparison == null) throw new ArgumentNullException(nameof(comparison));
             this.comparison = comparison;
         }
 

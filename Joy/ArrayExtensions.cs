@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AvP.Joy.Enumerables;
 
 namespace AvP.Joy
@@ -12,7 +9,7 @@ namespace AvP.Joy
     {
         public static TSource[] ShiftedLeft<TSource>(this TSource[] source, int distance)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             distance = distance % source.Length;
             if (distance < 0) distance += source.Length;
@@ -27,7 +24,7 @@ namespace AvP.Joy
 
         public static TSource[] ShiftedLeft<TSource>(this TSource[] source, long distance)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             distance = distance % source.Length;
             if (distance < 0) distance += source.Length;
@@ -42,8 +39,8 @@ namespace AvP.Joy
 
         public static TSource[] ShiftedLeft<TSource>(this TSource[] source, params TSource[] fill)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (fill == null) throw new ArgumentNullException("fill");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (fill == null) throw new ArgumentNullException(nameof(fill));
             if (fill.Length > source.Length) throw new ArgumentException("Fill array must be smaller than source array.");
 
             var distance = fill.Length;
@@ -56,8 +53,8 @@ namespace AvP.Joy
 
         public static TSource[] ShiftedRight<TSource>(this TSource[] source, params TSource[] fill)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (fill == null) throw new ArgumentNullException("fill");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (fill == null) throw new ArgumentNullException(nameof(fill));
             if (fill.Length > source.Length) throw new ArgumentException("Fill array must be smaller than source array.");
 
             var distance = fill.Length;
@@ -70,7 +67,7 @@ namespace AvP.Joy
 
         public static TSource[] Skip<TSource>(this TSource[] source, int count)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (count > source.Length) return new TSource[0];
 
             var result = new TSource[source.Length - count];
@@ -80,7 +77,7 @@ namespace AvP.Joy
 
         public static TSource[] Take<TSource>(this TSource[] source, int count)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (count > source.Length) return (TSource[])source.Clone();
 
             var result = new TSource[count];
@@ -90,39 +87,39 @@ namespace AvP.Joy
 
         public static TSource[] Concat<TSource>(this TSource[] first, TSource[] second, params TSource[][] others)
         {
-            if (first == null) throw new ArgumentNullException("first");
-            if (second == null) throw new ArgumentNullException("second");
-            if (others == null) throw new ArgumentNullException("others");
-            if (others.Contains(null)) throw new ArgumentException("Parameter element must not be null.", "others");
+            if (first == null) throw new ArgumentNullException(nameof(first));
+            if (second == null) throw new ArgumentNullException(nameof(second));
+            if (others == null) throw new ArgumentNullException(nameof(others));
+            if (others.Contains(null)) throw new ArgumentException("Parameter element must not be null.", nameof(others));
 
             return Concat(first.InSingleton().Concat(second.InSingleton()).Concat(others));
         }
 
         public static TSource[] Concat<TSource>(this IEnumerable<TSource[]> sources)
         {
-            if (sources == null) throw new ArgumentNullException("sources");
+            if (sources == null) throw new ArgumentNullException(nameof(sources));
             sources = sources.ToList();
-            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", "sources");
+            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", nameof(sources));
             
             return Concat(sources.Select(o => Tuple.Create(o, 0, o.Length)));
         }
 
         public static TSource[] Concat<TSource>(this IEnumerable<Tuple<TSource[], int>> sources)
         {
-            if (sources == null) throw new ArgumentNullException("sources");
+            if (sources == null) throw new ArgumentNullException(nameof(sources));
             sources = sources.ToList();
-            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", "sources");
-            if (sources.Any(o => o.Item1 == null)) throw new ArgumentException("Parameter element's Item1 must not be null.", "sources");
+            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", nameof(sources));
+            if (sources.Any(o => o.Item1 == null)) throw new ArgumentException("Parameter element's Item1 must not be null.", nameof(sources));
 
             return Concat(sources.Select(o => Tuple.Create(o.Item1, o.Item2, o.Item1.Length - o.Item2)));
         }
 
         public static TSource[] Concat<TSource>(this IEnumerable<Tuple<TSource[], int, int>> sources)
         {
-            if (sources == null) throw new ArgumentNullException("sources");
+            if (sources == null) throw new ArgumentNullException(nameof(sources));
             sources = sources.ToList();
-            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", "sources");
-            if (sources.Any(o => o.Item1 == null)) throw new ArgumentException("Parameter element's Item1 must not be null.", "sources");
+            if (sources.Contains(null)) throw new ArgumentException("Parameter element must not be null.", nameof(sources));
+            if (sources.Any(o => o.Item1 == null)) throw new ArgumentException("Parameter element's Item1 must not be null.", nameof(sources));
             if (sources.Any(o => o.Item2 + o.Item3 > o.Item1.Length || o.Item2 < 0 || o.Item3 < 0)) throw new ArgumentOutOfRangeException();
 
             var result = new TSource[sources.Sum(o => o.Item3)];
