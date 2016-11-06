@@ -639,6 +639,15 @@ namespace AvP.Joy.Enumerables
             => source.Any(F.Id);
 
         #endregion
+        #region Sum
+
+        public static uint Sum(this IEnumerable<uint> source)
+            => source.Aggregate(0U, (x, y) => x + y);
+
+        public static ulong Sum(this IEnumerable<ulong> source)
+            => source.Aggregate(0UL, (x, y) => x + y);
+
+        #endregion
         #region MinBy, MaxBy
 
         public static TSource MinBy<TSource, TCompare>(this IEnumerable<TSource> source, Func<TSource, TCompare> selector) where TCompare : IComparable<TCompare>

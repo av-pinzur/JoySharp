@@ -1,10 +1,17 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace AvP.Joy
 {
     public static class ObjectExtensions
     {
         public static bool IsAmong<TValue>(this TValue value, params TValue[] set)
+            => set.Contains(value);
+
+        public static bool IsAmong<TValue>(this TValue value, IEnumerable<TValue> set)
+            => set.Contains(value);
+
+        public static bool IsAmong<TValue>(this TValue value, ICollection<TValue> set)
             => set.Contains(value);
 
         public static string ToStringOrDefault<TValue>(this Maybe<TValue> value, string defaultValue)
