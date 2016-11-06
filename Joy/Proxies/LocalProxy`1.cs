@@ -8,7 +8,7 @@ namespace AvP.Joy.Proxies
     {
         static LocalProxy()
         {
-            if (!typeof(TInterface).IsInterface) throw new ArgumentException("Type argument must be an interface type.", "TInterface");
+            if (!typeof(TInterface).IsInterface) throw new ArgumentException("Type argument must be an interface type.", nameof(TInterface));
         }
 
         protected LocalProxy() : base(typeof(TInterface)) {}
@@ -30,11 +30,11 @@ namespace AvP.Joy.Proxies
                 .ToList();
 
             if (methods.Count < 1) 
-                throw new ArgumentException("Type argument must declare a method.", "TInterface");
+                throw new ArgumentException("Type argument must declare a method.", nameof(TInterface));
             if (methods.Count > 1)
                 throw new ArgumentException(string.Format(
                     "Type argument must not declare more than one method. Declared methods: {0}.", 
-                    methods.Select(m => m.DeclaringType.Name + '.' + m.Name).Join(", ")), "TInterface");
+                    methods.Select(m => m.DeclaringType.Name + '.' + m.Name).Join(", ")), nameof(TInterface));
             if (!methods[0].SignatureEquals(target.Method))
                 throw new ArgumentException("Argument must have same signature as TInterface's method.", nameof(target));
             

@@ -58,10 +58,10 @@ namespace AvP.Joy.Proxies
 
             bool IRemotingTypeInfo.CanCastTo(Type type, object o)
             {
-                return container.supportedInterfaces.Any(t => type.IsAssignableFrom(t));
+                return container.supportedInterfaces.Any(type.IsAssignableFrom);
             }
 
-            public sealed override IMessage Invoke(IMessage msg)
+            public override IMessage Invoke(IMessage msg)
             {
                 var callMsg = (IMethodCallMessage)msg;
                 var method = (MethodInfo)callMsg.MethodBase;
