@@ -106,7 +106,10 @@ namespace AvP.Joy.Enumerables
         #endregion
         #region Zip, ZipAll
 
-        public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
+        public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>(
+            this IEnumerable<TFirst> first, 
+            IEnumerable<TSecond> second, 
+            Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
         {
             if (null == first) throw new ArgumentNullException(nameof(first));
             if (null == second) throw new ArgumentNullException(nameof(second));
@@ -114,20 +117,25 @@ namespace AvP.Joy.Enumerables
             return ZipAllImpl(first, second, resultSelector);
         }
 
-        private static IEnumerable<TResult> ZipAllImpl<TFirst, TSecond, TResult>(IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
+        private static IEnumerable<TResult> ZipAllImpl<TFirst, TSecond, TResult>(
+            IEnumerable<TFirst> first, 
+            IEnumerable<TSecond> second, 
+            Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
         {
-            bool any1, any2;
-            using (var e1 = first.GetEnumerator())
-            using (var e2 = second.GetEnumerator())
+            using (var etor1 = first.GetEnumerator())
+            using (var etor2 = second.GetEnumerator())
             {
-                while ((any1 = e1.MoveNext()) | (any2 = e2.MoveNext()))
+                bool any1, any2;
+                while ((any1 = etor1.MoveNext()) | (any2 = etor2.MoveNext()))
                     yield return resultSelector(
-                            Maybe.If(any1, () => e1.Current),
-                            Maybe.If(any2, () => e2.Current));
+                            Maybe.If(any1, () => etor1.Current),
+                            Maybe.If(any2, () => etor2.Current));
             }
         }
 
-        public static IEnumerable<TResult> Zip<TSource, TResult>(this IEnumerable<IEnumerable<TSource>> sources, Func<IEnumerable<TSource>, TResult> resultSelector)
+        public static IEnumerable<TResult> Zip<TSource, TResult>(
+            this IEnumerable<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<TSource>, TResult> resultSelector)
         {
             if (null == sources) throw new ArgumentNullException(nameof(sources));
             if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
@@ -139,24 +147,29 @@ namespace AvP.Joy.Enumerables
             return ZipImpl(sourceList, resultSelector);
         }
 
-        private static IEnumerable<TResult> ZipImpl<TSource, TResult>(List<IEnumerable<TSource>> sources, Func<IEnumerable<TSource>, TResult> resultSelector)
+        private static IEnumerable<TResult> ZipImpl<TSource, TResult>(
+            IReadOnlyList<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<TSource>, TResult> resultSelector)
         {
-            var any = new bool[sources.Count];
-            var e = new IEnumerator<TSource>[sources.Count];
+            var etors = new IEnumerator<TSource>[sources.Count];
             try
             {
                 for (int i = 0; i < sources.Count; i++)
-                    e[i] = sources[i].GetEnumerator();
-                while (e.Select((_e, i) => new { _e, i }).Aggregate(true, (acc, cur) => (any[cur.i] = cur._e.MoveNext()) && acc))
-                    yield return resultSelector(e.Select((_e, i) => _e.Current).ToList());
+                    etors[i] = sources[i].GetEnumerator();
+
+                var any = new bool[sources.Count];
+                while (etors.Select((etor, i) => new { etor, i }).Aggregate(true, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) && acc))
+                    yield return resultSelector(etors.Select((etor) => etor.Current).ToList());
             }
             finally
             {
-                foreach (var _e in e) if (_e != null) _e.Dispose();
+                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
-        public static IEnumerable<TResult> ZipAll<TSource, TResult>(this IEnumerable<IEnumerable<TSource>> sources, Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
+        public static IEnumerable<TResult> ZipAll<TSource, TResult>(
+            this IEnumerable<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
         {
             if (null == sources) throw new ArgumentNullException(nameof(sources));
             if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
@@ -167,20 +180,23 @@ namespace AvP.Joy.Enumerables
             return ZipAllImpl(sourceList, resultSelector);
         }
 
-        private static IEnumerable<TResult> ZipAllImpl<TSource, TResult>(List<IEnumerable<TSource>> sources, Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
+        private static IEnumerable<TResult> ZipAllImpl<TSource, TResult>(
+            IReadOnlyList<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
         {
-            var any = new bool[sources.Count];
-            var e = new IEnumerator<TSource>[sources.Count];
+            var etors = new IEnumerator<TSource>[sources.Count];
             try
             {
                 for (int i = 0; i < sources.Count; i++)
-                    e[i] = sources[i].GetEnumerator();
-                while (e.Select((_e, i) => new { _e, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur._e.MoveNext()) || acc))
-                    yield return resultSelector(e.Select((_e, i) => Maybe.If(any[i], () => _e.Current)).ToList());
+                    etors[i] = sources[i].GetEnumerator();
+
+                var any = new bool[sources.Count];
+                while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
+                    yield return resultSelector(etors.Select((etor, i) => Maybe.If(any[i], () => etor.Current)).ToList());
             }
             finally
             {
-                foreach (var _e in e) if (_e != null) _e.Dispose();
+                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
@@ -320,22 +336,22 @@ namespace AvP.Joy.Enumerables
             return InterleaveImpl(sourceList);
         }
 
-        private static IEnumerable<TSource> InterleaveImpl<TSource>(List<IEnumerable<TSource>> sources)
+        private static IEnumerable<TSource> InterleaveImpl<TSource>(IReadOnlyList<IEnumerable<TSource>> sources)
         {
-            var any = new bool[sources.Count];
-            var e = new IEnumerator<TSource>[sources.Count];
+            var etors = new IEnumerator<TSource>[sources.Count];
             try
             {
                 for (int i = 0; i < sources.Count; i++)
-                    e[i] = sources[i].GetEnumerator();
+                    etors[i] = sources[i].GetEnumerator();
 
-                while (e.Select((o, i) => new { o, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.o.MoveNext()) || acc))
+                var any = new bool[sources.Count];
+                while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
                     for (var i = 0; i < sources.Count; i++)
-                        if (any[i]) yield return e[i].Current;
+                        if (any[i]) yield return etors[i].Current;
             }
             finally
             {
-                foreach (var _e in e) if (_e != null) _e.Dispose();
+                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
