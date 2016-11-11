@@ -60,12 +60,28 @@ namespace AvP.Joy.Test
         }
 
         [TestMethod]
+        public void TestZip_Enumerable_Deferred()
+        {
+            var actual = new[] { new [] {0, 1}, new[] { 0, 1 } }.Zip(o => o).Zip(o => o);
+            for (int i = 0; i < 2; i++)
+                Assert.AreEqual("(0, 1)|(0, 1)", actual.Select(o => '(' + o.ToStrings().Join(", ") + ')').Join("|"));
+        }
+
+        [TestMethod]
         public void TestZipAll_Enumerable()
         {
             Assert.AreEqual("(0, 0)|(1, 1)|(2, _)|(3, _)",
                 Enumerable.Range(0, 4).ZipAll(Enumerable.Range(0, 2), (x, y) => Tuple.Create(x.HasValue ? x.Value.ToString() : "_", y.HasValue ? y.Value.ToString() : "_")).ToStrings().Join("|"));
             Assert.AreEqual("(0, 0, 0)|(1, 1, 1)|(2, _, 2)|(3, _, _)",
                 (new[] { Enumerable.Range(0, 4), Enumerable.Range(0, 2), Enumerable.Range(0, 3) }).ZipAll(e => '(' + e.Select(o => o.HasValue ? o.Value.ToString() : "_").Join(", ") + ')').Join("|"));
+        }
+
+        [TestMethod]
+        public void TestZipAll_Enumerable_Deferred()
+        {
+            var actual = new[] { new[] { 0, 1 }, new[] { 0, 1 } }.ZipAll(o => o).ZipAll(o => o);
+            for (int i = 0; i < 2; i++)
+                Assert.AreEqual("(0, 1)|(0, 1)", actual.Select(o => '(' + o.ToStrings().Join(", ") + ')').Join("|"));
         }
     }
 }
