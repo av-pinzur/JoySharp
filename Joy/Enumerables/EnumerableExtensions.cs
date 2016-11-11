@@ -133,6 +133,39 @@ namespace AvP.Joy.Enumerables
             }
         }
 
+        public static IEnumerable<TResult> ZipAll<TSource, TResult>(
+            this IEnumerable<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
+        {
+            if (null == sources) throw new ArgumentNullException(nameof(sources));
+            if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
+
+            var sourceList = sources.ToList();
+            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
+
+            return ZipAllImpl(sourceList, resultSelector);
+        }
+
+        private static IEnumerable<TResult> ZipAllImpl<TSource, TResult>(
+            IReadOnlyList<IEnumerable<TSource>> sources, 
+            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
+        {
+            var etors = new IEnumerator<TSource>[sources.Count];
+            try
+            {
+                for (int i = 0; i < sources.Count; i++)
+                    etors[i] = sources[i].GetEnumerator();
+
+                var any = new bool[sources.Count];
+                while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
+                    yield return resultSelector(etors.Select((etor, i) => Maybe.If(any[i], () => etor.Current)).ToList());
+            }
+            finally
+            {
+                foreach (var etor in etors) if (etor != null) etor.Dispose();
+            }
+        }
+
         public static IEnumerable<TResult> Zip<TSource, TResult>(
             this IEnumerable<IEnumerable<TSource>> sources, 
             Func<IEnumerable<TSource>, TResult> resultSelector)
@@ -160,39 +193,6 @@ namespace AvP.Joy.Enumerables
                 var any = new bool[sources.Count];
                 while (etors.Select((etor, i) => new { etor, i }).Aggregate(true, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) && acc))
                     yield return resultSelector(etors.Select((etor) => etor.Current).ToList());
-            }
-            finally
-            {
-                foreach (var etor in etors) if (etor != null) etor.Dispose();
-            }
-        }
-
-        public static IEnumerable<TResult> ZipAll<TSource, TResult>(
-            this IEnumerable<IEnumerable<TSource>> sources, 
-            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
-        {
-            if (null == sources) throw new ArgumentNullException(nameof(sources));
-            if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
-
-            var sourceList = sources.ToList();
-            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
-
-            return ZipAllImpl(sourceList, resultSelector);
-        }
-
-        private static IEnumerable<TResult> ZipAllImpl<TSource, TResult>(
-            IReadOnlyList<IEnumerable<TSource>> sources, 
-            Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
-        {
-            var etors = new IEnumerator<TSource>[sources.Count];
-            try
-            {
-                for (int i = 0; i < sources.Count; i++)
-                    etors[i] = sources[i].GetEnumerator();
-
-                var any = new bool[sources.Count];
-                while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
-                    yield return resultSelector(etors.Select((etor, i) => Maybe.If(any[i], () => etor.Current)).ToList());
             }
             finally
             {
