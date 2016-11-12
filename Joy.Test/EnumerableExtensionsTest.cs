@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AvP.Joy.Enumerables;
 
@@ -82,6 +84,136 @@ namespace AvP.Joy.Test
             var actual = new[] { new[] { 0, 1 }, new[] { 0, 1 } }.ZipAll(o => o).ZipAll(o => o);
             for (int i = 0; i < 2; i++)
                 Assert.AreEqual("(0, 1)|(0, 1)", actual.Select(o => '(' + o.ToStrings().Join(", ") + ')').Join("|"));
+        }
+
+        [TestMethod]
+        public void TestSelectDisposables()
+        {
+            var disposableStati = new[] {new[] {false}, new[] {false}, new[] {false}};
+            IReadOnlyList<IDisposable> results;
+            using (disposableStati.SelectDisposables(
+                o => new DelegatingDisposable(() => { o[0] = true; }),
+                out results))
+            {
+                foreach (var o in results.Select((_, i) => disposableStati[i]))
+                    Assert.IsFalse(o[0]);
+            }
+            foreach (var o in disposableStati)
+                Assert.IsTrue(o[0]);
+        }
+
+        [TestMethod]
+        public void TestSelectDisposables_WorstCase()
+        {
+            var disposableStati = new[] {new[] {false}, new[] {false}, new[] {false}};
+            bool caughtExpected = false;
+            try
+            {
+                IReadOnlyList<IDisposable> results;
+                using (disposableStati.SelectDisposables(
+                    (o, i) =>
+                    {
+                        if (i == 2) throw new BadImageFormatException();
+                        return new DelegatingDisposable(() => { o[0] = true; });
+                    },
+                    out results))
+                {
+                    foreach (var o in results.Select((_, i) => disposableStati[i]))
+                        Assert.IsFalse(o[0]);
+                }
+            }
+            catch (BadImageFormatException)
+            {
+                caughtExpected = true;
+                for (var i = 0; i < disposableStati.Length; i++)
+                {
+                    var o = disposableStati[i];
+                    if (i < 2) Assert.IsTrue(o[0]);
+                    else Assert.IsFalse(o[0]);
+                }
+            }
+            Assert.IsTrue(caughtExpected);
+        }
+
+        [TestMethod]
+        public void TestSelectDisposables_Speed()
+        {
+            const int cycleCount = 1000;
+            const int workThinkMs = 1;
+            const int disposalThinkMs = 0;
+
+            var cycles = Enumerable.Range(0, cycleCount).ToList();
+
+            var baselineTime = MinTime(2, () => 
+                    BuildUseDispose_Inconvenient(cycles, disposalThinkMs, workThinkMs));
+
+            var actualTime = MinTime(2, () => 
+                    BuildUseDispose_Convenient(cycles, disposalThinkMs, workThinkMs));
+
+            var thinkTime = TimeSpan.FromMilliseconds(cycleCount*(workThinkMs + disposalThinkMs));
+            var baseline = (baselineTime - thinkTime).TotalMilliseconds;
+            var actual = (actualTime - thinkTime).TotalMilliseconds;
+
+            Assert.AreEqual(1D, 1D.MaxVs(actual / baseline), 0.001D,
+                $"Performance penalty too high. Actual Time: {actualTime}; Baseline Time: {baselineTime}; Think Time: {thinkTime}.");
+        }
+
+        private static void BuildUseDispose_Convenient(List<int> cycles, int disposalThinkMs, int workThinkMs)
+        {
+            IReadOnlyList<IDisposable> results;
+            using (cycles.SelectDisposables(
+                _ => new TestDisposable(disposalThinkMs),
+                out results))
+            {
+                foreach (var _ in results)
+                    Thread.Sleep(workThinkMs);
+            }
+        }
+
+        private static void BuildUseDispose_Inconvenient(List<int> cycles, int disposalThinkMs, int workThinkMs)
+        {
+            var results = new List<IDisposable>();
+            try
+            {
+                foreach (var _ in cycles)
+                    results.Add(new TestDisposable(disposalThinkMs));
+
+                foreach (var _ in results)
+                    Thread.Sleep(workThinkMs);
+            }
+            finally
+            {
+                foreach (var o in results) o?.Dispose();
+            }
+        }
+
+        private sealed class TestDisposable : IDisposable
+        {
+            private readonly int thinkMs;
+
+            public TestDisposable(int thinkMs)
+            {
+                this.thinkMs = thinkMs;
+            }
+            
+            public void Dispose()
+            {
+                if (thinkMs > 0) Thread.Sleep(thinkMs);
+            }
+        }
+
+        private static TimeSpan MinTime(int iterations, Action action)
+        {
+            return Enumerable.Range(0, iterations)
+                .Select(_ => Time(action)).Min();
+        }
+
+        private static TimeSpan Time(Action action)
+        {
+            var timer = Stopwatch.StartNew();
+            action();
+            timer.Stop();
+            return timer.Elapsed;
         }
     }
 }

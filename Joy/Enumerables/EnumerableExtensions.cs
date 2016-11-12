@@ -150,19 +150,12 @@ namespace AvP.Joy.Enumerables
             IReadOnlyList<IEnumerable<TSource>> sources, 
             Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
         {
-            var etors = new IEnumerator<TSource>[sources.Count];
-            try
+            IReadOnlyList<IEnumerator<TSource>> etors;
+            using (sources.SelectDisposables(e => e.GetEnumerator(), out etors))
             {
-                for (int i = 0; i < sources.Count; i++)
-                    etors[i] = sources[i].GetEnumerator();
-
                 var any = new bool[sources.Count];
                 while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
                     yield return resultSelector(etors.Select((etor, i) => Maybe.If(any[i], () => etor.Current)).ToList());
-            }
-            finally
-            {
-                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
@@ -184,19 +177,12 @@ namespace AvP.Joy.Enumerables
             IReadOnlyList<IEnumerable<TSource>> sources, 
             Func<IEnumerable<TSource>, TResult> resultSelector)
         {
-            var etors = new IEnumerator<TSource>[sources.Count];
-            try
+            IReadOnlyList<IEnumerator<TSource>> etors;
+            using (sources.SelectDisposables(e => e.GetEnumerator(), out etors))
             {
-                for (int i = 0; i < sources.Count; i++)
-                    etors[i] = sources[i].GetEnumerator();
-
                 var any = new bool[sources.Count];
                 while (etors.Select((etor, i) => new { etor, i }).Aggregate(true, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) && acc))
                     yield return resultSelector(etors.Select((etor) => etor.Current).ToList());
-            }
-            finally
-            {
-                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
@@ -338,20 +324,13 @@ namespace AvP.Joy.Enumerables
 
         private static IEnumerable<TSource> InterleaveImpl<TSource>(IReadOnlyList<IEnumerable<TSource>> sources)
         {
-            var etors = new IEnumerator<TSource>[sources.Count];
-            try
+            IReadOnlyList<IEnumerator<TSource>> etors;
+            using (sources.SelectDisposables(e => e.GetEnumerator(), out etors))
             {
-                for (int i = 0; i < sources.Count; i++)
-                    etors[i] = sources[i].GetEnumerator();
-
                 var any = new bool[sources.Count];
                 while (etors.Select((etor, i) => new { etor, i }).Aggregate(false, (acc, cur) => (any[cur.i] = cur.etor.MoveNext()) || acc))
                     for (var i = 0; i < sources.Count; i++)
                         if (any[i]) yield return etors[i].Current;
-            }
-            finally
-            {
-                foreach (var etor in etors) if (etor != null) etor.Dispose();
             }
         }
 
@@ -878,6 +857,48 @@ namespace AvP.Joy.Enumerables
 
         public static List<List<List<TSource>>> ToListDeep<TSource>(this IEnumerable<IEnumerable<IEnumerable<TSource>>> source)
             => source.Select(ToListDeep).ToList();
+
+        #endregion
+        #region DisposeAll, SelectDisposables
+
+        public static void DisposeAll<TDisposable>(this IEnumerable<TDisposable> source) where TDisposable : IDisposable
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            foreach (var o in source) o?.Dispose();
+        }
+
+        public static IDisposable SelectDisposables<TSource, TDisposable>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TDisposable> selector,
+            out IReadOnlyList<TDisposable> results) where TDisposable : IDisposable
+        {
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+            return SelectDisposables(source, (o, _) => selector(o), out results);
+        }
+
+        public static IDisposable SelectDisposables<TSource, TDisposable>(
+            this IEnumerable<TSource> source,
+            Func<TSource, int, TDisposable> selector,
+            out IReadOnlyList<TDisposable> results) where TDisposable : IDisposable
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+            var disposables = new List<TDisposable>();
+            try
+            {
+                foreach (var o in source.Select(selector))
+                    disposables.Add(o);
+
+                results = disposables;
+                return new DelegatingDisposable(disposables.DisposeAll);
+            }
+            catch
+            {
+                disposables.DisposeAll();
+                throw;
+            }
+        }
 
         #endregion
     }
