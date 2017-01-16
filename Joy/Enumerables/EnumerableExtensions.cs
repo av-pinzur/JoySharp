@@ -418,7 +418,7 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region FirstOrDefault, Nth, NthOrDefault
+        #region FirstOrDefault, LastOrDefault, SingleOrDefault, Nth, NthOrDefault
 
         public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
         {
@@ -432,6 +432,39 @@ namespace AvP.Joy.Enumerables
 
         public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
             => source.Where(predicate).FirstOrDefault(fallback);
+
+        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+
+            Maybe<TSource> last = Maybe<TSource>.None;
+            foreach (var o in source)
+                last = o;
+            return last.HasValue ? last.Value : fallback;
+        }
+
+        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
+            => source.Where(predicate).LastOrDefault(fallback);
+
+        public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
+        {
+            if (null == source) throw new ArgumentNullException(nameof(source));
+
+            using (var e = source.GetEnumerator())
+            {
+                if (e.MoveNext())
+                {
+                    TSource result = e.Current;
+                    if (e.MoveNext())
+                        throw new InvalidOperationException("Sequence contains more than one element");
+                    return result;
+                }
+            }
+            return fallback;
+        }
+
+        public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
+            => source.Where(predicate).SingleOrDefault(fallback);
 
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
             => source.Skip(zeroBasedIndex).First();

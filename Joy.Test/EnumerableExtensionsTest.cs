@@ -9,7 +9,7 @@ using AvP.Joy.Enumerables;
 namespace AvP.Joy.Test
 {
     [TestClass]
-    public class EnumerableExtensionsTest
+    public class EnumerableExtensionsTest : HelpedTest
     {
         [TestMethod]
         public void TestGenerate()
@@ -84,6 +84,24 @@ namespace AvP.Joy.Test
             var actual = new[] { new[] { 0, 1 }, new[] { 0, 1 } }.ZipAll(o => o).ZipAll(o => o);
             for (int i = 0; i < 2; i++)
                 Assert.AreEqual("(0, 1)|(0, 1)", actual.Select(o => '(' + o.ToStrings().Join(", ") + ')').Join("|"));
+        }
+
+        [TestMethod]
+        public void TestLastOrDefault()
+        {
+            Assert.AreEqual('c', new[] { 'a', 'b', 'c' }.LastOrDefault('d'));
+            Assert.AreEqual('a', new[] { 'a' }.LastOrDefault('d'));
+            Assert.AreEqual('d', new char[0].LastOrDefault('d'));
+        }
+
+        [TestMethod]
+        public void TestSingleOrDefault()
+        {
+            Assert.AreEqual('a', new char[] { 'a' }.SingleOrDefault('d'));
+            Assert.AreEqual('d', new char[0].SingleOrDefault('d'));
+            AssertEqualThrows(
+                () => new char[] { 'a', 'b', 'c' }.SingleOrDefault(),
+                () => new char[] { 'a', 'b', 'c' }.SingleOrDefault('d'), $"Should fail just as {nameof(System.Linq)} does.");
         }
 
         [TestMethod]
