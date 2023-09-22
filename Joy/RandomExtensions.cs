@@ -16,7 +16,7 @@ namespace AvP.Joy
             return options.Nth(source.Next(options.Count()));
         }
 
-        [return: NotNullIfNotNull("fallback")]
+        [return: NotNullIfNotNull(nameof(fallback))]
         public static TSource? NextFromOrDefault<TSource>(this Random source, IEnumerable<TSource> options, TSource? fallback = default(TSource))
         {
             if (null == source) throw new ArgumentNullException(nameof(source));

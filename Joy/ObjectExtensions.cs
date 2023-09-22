@@ -13,11 +13,11 @@ namespace AvP.Joy
         public static bool IsAmong<TValue>(this TValue value, ICollection<TValue> set)
             => set.Contains(value);
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static string? ToStringOrDefault<TValue>(this Maybe<TValue> value, string? defaultValue = default)
             => value.HasValue ? value.Value.ToStringOrDefault(defaultValue) : defaultValue;
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static string? ToStringOrDefault<TValue>(this TValue? value, string? defaultValue = default)
             => value?.ToString() ?? defaultValue;
 

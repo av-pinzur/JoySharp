@@ -44,7 +44,7 @@ namespace AvP.Joy
 
         public readonly bool HasValue => hasValue;
         public readonly T Value => hasValue ? value! : throw new InvalidOperationException("The current Maybe has no value.");
-        [return: NotNullIfNotNull("fallback")] public readonly T? ValueOrDefault(T? fallback) => hasValue ? value! : fallback;
+        [return: NotNullIfNotNull(nameof(fallback))] public readonly T? ValueOrDefault(T? fallback) => hasValue ? value! : fallback;
 
         public bool Equals(Maybe<T> other)
         {

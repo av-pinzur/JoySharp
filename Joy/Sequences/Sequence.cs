@@ -200,7 +200,7 @@ namespace AvP.Joy.Sequences
         #endregion
         #region HeadOrDefault, HeadMaybe, OrEmpty, DefaultIfEmpty
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? HeadOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
@@ -248,14 +248,14 @@ namespace AvP.Joy.Sequences
             return source.Where(predicate).Single();
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? SingleOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.Single();
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? SingleOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
@@ -282,14 +282,14 @@ namespace AvP.Joy.Sequences
             return FirstImpl(source.SkipWhile(o => !predicate(o)), "Sequence contains no elements meeting the specified criteria.");
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? FirstOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.First();
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? FirstOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
@@ -310,14 +310,14 @@ namespace AvP.Joy.Sequences
             return FirstImpl(source.Where(predicate).Skip(zeroBasedIndex), "Sequence contains too few elements meeting the specified critieria.");
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.Skip(zeroBasedIndex).FirstOrDefault(defaultValue);
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
@@ -341,14 +341,14 @@ namespace AvP.Joy.Sequences
             return source.Where(predicate).Last();
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? LastOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.Last();
         }
 
-        [return: NotNullIfNotNull("defaultValue")]
+        [return: NotNullIfNotNull(nameof(defaultValue))]
         public static TSource? LastOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));

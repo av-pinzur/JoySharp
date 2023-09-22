@@ -18,7 +18,7 @@ namespace AvP.Joy
             return value;
         }
 
-        [return: NotNullIfNotNull("fallback")]
+        [return: NotNullIfNotNull(nameof(fallback))]
         public static TValue? GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue? fallback = default)
         {
             if (null == dictionary) throw new ArgumentNullException(nameof(dictionary));
