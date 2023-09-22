@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public abstract class ComparerBase<T> : Comparer<T>
     {
-        public override int Compare(T x, T y)
+        public override int Compare(T? x, T? y)
         {
             return ReferenceEquals(x, y) ? 0
                 : x == null ? -1

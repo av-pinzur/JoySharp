@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 
 namespace AvP.Joy
 {
@@ -60,7 +57,7 @@ namespace AvP.Joy
         private readonly IEnumerable<TKey> keys;
         private readonly TValue defaultValue;
 
-        public SparseDictionaryWrapper(IDictionary<TKey, TValue> subject, IEnumerable<TKey> keys, TValue defaultValue = default(TValue))
+        public SparseDictionaryWrapper(IDictionary<TKey, TValue> subject, IEnumerable<TKey> keys, TValue defaultValue)
         {
             if (null == subject) throw new ArgumentNullException(nameof(subject));
             if (null == keys) throw new ArgumentNullException(nameof(keys));
@@ -70,30 +67,26 @@ namespace AvP.Joy
             this.defaultValue = defaultValue;
         }
 
-        public bool IsReadOnly { get { return subject.IsReadOnly; } }
-        public int Count { get { return keys.Count(); } }
+        public bool IsReadOnly => subject.IsReadOnly;
+        public int Count => keys.Count();
 
         public TValue this[TKey key]
         {
             get
             {
-                TValue result;
-                bool success = subject.TryGetValue(key, out result);
-                return success ? result : defaultValue;
+                TValue? result;
+                return subject.TryGetValue(key, out result) ? result : defaultValue;
             }
-            set
-            {
-                subject[key] = value;
-            }
+            set => subject[key] = value;
         }
 
-        public ICollection<TKey> Keys { get {
-                return new ReadOnlyCollectionFacade<TKey>(keys); } }
+        public ICollection<TKey> Keys =>
+            new ReadOnlyCollectionFacade<TKey>(keys);
 
-        public ICollection<TValue> Values { get {
-                return new ReadOnlyCollectionFacade<TValue>(keys.Select(k => this[k])); } }
+        public ICollection<TValue> Values =>
+            new ReadOnlyCollectionFacade<TValue>(keys.Select(k => this[k]));
 
-        public bool ContainsKey(TKey key) 
+        public bool ContainsKey(TKey key)
             => true;
 
         public bool TryGetValue(TKey key, out TValue value)
@@ -105,7 +98,7 @@ namespace AvP.Joy
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
             => Equals(this[item.Key], item.Value);
 
-        private IEnumerable<KeyValuePair<TKey, TValue>> AllPairs 
+        private IEnumerable<KeyValuePair<TKey, TValue>> AllPairs
             => keys.Select(k => new KeyValuePair<TKey, TValue>(k, this[k]));
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)

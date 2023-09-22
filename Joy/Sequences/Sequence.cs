@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace AvP.Joy.Sequences
 {
@@ -35,7 +33,7 @@ namespace AvP.Joy.Sequences
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
-            return (source.MoveNext()) 
+            return (source.MoveNext())
                 ? new LazySequence<TSource>(source.Current, () => source.AsSequence())
                  : Sequence.Empty<TSource>();
         }
@@ -49,13 +47,13 @@ namespace AvP.Joy.Sequences
             return sequenceOperation(source.AsSequence(out disposer)).AsEnumerable(disposer);
         }
 
-        public static IEnumerable<TSource> AsEnumerable<TSource>(this ISequence<TSource> source, IDisposable disposer = null)
+        public static IEnumerable<TSource> AsEnumerable<TSource>(this ISequence<TSource> source, IDisposable? disposer = null)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return AsEnumerableImpl(source, disposer);
         }
 
-        private static IEnumerable<TSource> AsEnumerableImpl<TSource>(ISequence<TSource> source, IDisposable disposer)
+        private static IEnumerable<TSource> AsEnumerableImpl<TSource>(ISequence<TSource> source, IDisposable? disposer)
         {
             using (disposer)
             {
@@ -91,16 +89,16 @@ namespace AvP.Joy.Sequences
             if (others == null) throw new ArgumentNullException(nameof(others));
 
             return new LinkedSequence<TResult>(first,
-                new LinkedSequence<TResult>(second, 
-                    F<ISequence<TResult>>.YEval(0, self => i => i < others.Length 
-                        ? new LinkedSequence<TResult>(others[i], self(i + 1)) 
-                        : Empty<TResult>() )));
+                new LinkedSequence<TResult>(second,
+                    F<ISequence<TResult>>.YEval(0, self => i => i < others.Length
+                        ? new LinkedSequence<TResult>(others[i], self(i + 1))
+                        : Empty<TResult>())));
         }
 
         public static ISequence<TResult> Repeat<TResult>(TResult element, int count)
         {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Parameter must be zero or greater.");
-            return count == 0 ? Empty<TResult>() : new LazySequence<TResult>(element, () => Repeat(element, count - 1) );
+            return count == 0 ? Empty<TResult>() : new LazySequence<TResult>(element, () => Repeat(element, count - 1));
         }
 
         public static ISequence<int> Range(int start, int count)
@@ -126,7 +124,7 @@ namespace AvP.Joy.Sequences
             if (step == null) throw new ArgumentNullException(nameof(step));
             return F<ISequence<TResult>>.YEval(
                 Maybe.Some(seed),
-                self => o => !o.HasValue ? Empty<TResult>() 
+                self => o => !o.HasValue ? Empty<TResult>()
                     : new LazySequence<TResult>(o.Value, () => self(step(o.Value))));
         }
 
@@ -148,7 +146,7 @@ namespace AvP.Joy.Sequences
         public static ISequence<string> ToStrings<TSource>(this ISequence<TSource> source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            return source.Select(o => o.ToString());
+            return source.Select(o => o?.ToString() ?? string.Empty);
         }
 
         #endregion
@@ -188,8 +186,8 @@ namespace AvP.Joy.Sequences
         public static int Count<TSource>(this ISequence<TSource> source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            return F<int>.Loop(source, 0, 
-                loop => (s, count) => s.None() ? loop.Complete(count) : loop.Recur(s.GetTail(), count + 1) );
+            return F<int>.Loop(source, 0,
+                loop => (s, count) => s.None() ? loop.Complete(count) : loop.Recur(s.GetTail(), count + 1));
         }
 
         public static int Count<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -202,7 +200,8 @@ namespace AvP.Joy.Sequences
         #endregion
         #region HeadOrDefault, HeadMaybe, OrEmpty, DefaultIfEmpty
 
-        public static TSource HeadOrDefault<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? HeadOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.Any ? source.Head : defaultValue;
@@ -219,7 +218,13 @@ namespace AvP.Joy.Sequences
             return source ?? Empty<TSource>();
         }
 
-        public static ISequence<TSource> DefaultIfEmpty<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
+        public static ISequence<TSource?> DefaultIfEmpty<TSource>(this ISequence<TSource> source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return source.Any ? source : Singleton<TSource?>(default);
+        }
+
+        public static ISequence<TSource> DefaultIfEmpty<TSource>(this ISequence<TSource> source, TSource defaultValue)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.Any ? source : Singleton<TSource>(defaultValue);
@@ -243,13 +248,15 @@ namespace AvP.Joy.Sequences
             return source.Where(predicate).Single();
         }
 
-        public static TSource SingleOrDefault<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? SingleOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.Single();
         }
 
-        public static TSource SingleOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? SingleOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -275,13 +282,15 @@ namespace AvP.Joy.Sequences
             return FirstImpl(source.SkipWhile(o => !predicate(o)), "Sequence contains no elements meeting the specified criteria.");
         }
 
-        public static TSource FirstOrDefault<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? FirstOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.First();
         }
 
-        public static TSource FirstOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? FirstOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -301,13 +310,15 @@ namespace AvP.Joy.Sequences
             return FirstImpl(source.Where(predicate).Skip(zeroBasedIndex), "Sequence contains too few elements meeting the specified critieria.");
         }
 
-        public static TSource NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.Skip(zeroBasedIndex).FirstOrDefault(defaultValue);
         }
 
-        public static TSource NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? NthOrDefault<TSource>(this ISequence<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -318,7 +329,7 @@ namespace AvP.Joy.Sequences
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (source.None()) throw new InvalidOperationException("Sequence is empty.");
-            return F<TSource>.Loop(source, 
+            return F<TSource>.Loop(source,
                 loop => s => F.Let(s.GetTail(), tail => tail.None() ? loop.Complete(s.Head) : loop.Recur(tail)));
         }
 
@@ -330,13 +341,15 @@ namespace AvP.Joy.Sequences
             return source.Where(predicate).Last();
         }
 
-        public static TSource LastOrDefault<TSource>(this ISequence<TSource> source, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? LastOrDefault<TSource>(this ISequence<TSource> source, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.None() ? defaultValue : source.Last();
         }
 
-        public static TSource LastOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource defaultValue = default(TSource))
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TSource? LastOrDefault<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate, TSource? defaultValue = default(TSource))
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -412,7 +425,7 @@ namespace AvP.Joy.Sequences
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (source.None()) throw new InvalidOperationException("Sequence is empty.");
-            
+
             return source.GetTail().Aggregate(source.Head, accumulator);
         }
 
@@ -420,10 +433,10 @@ namespace AvP.Joy.Sequences
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (accumulator == null) throw new ArgumentNullException(nameof(accumulator));
-            
-            return F<TAccumulate>.Loop(source, seed, 
+
+            return F<TAccumulate>.Loop(source, seed,
                 loop => (current, accumulated) =>
-                    !current.Any ? loop.Complete(accumulated) : loop.Recur(current.GetTail(), accumulator(accumulated, current.Head)) );
+                    !current.Any ? loop.Complete(accumulated) : loop.Recur(current.GetTail(), accumulator(accumulated, current.Head)));
         }
 
         public static TResult Aggregate<TSource, TAccumulate, TResult>(this ISequence<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> accumulator, Func<TAccumulate, TResult> resultSelector)
@@ -442,7 +455,7 @@ namespace AvP.Joy.Sequences
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (resultSelector == null) throw new ArgumentNullException(nameof(resultSelector));
-            
+
             return source.None() ? Empty<TResult>()
                 : new LazySequence<TResult>(resultSelector(source.Head), () => source.GetTail().Select(resultSelector));
         }
@@ -452,9 +465,9 @@ namespace AvP.Joy.Sequences
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (resultSelector == null) throw new ArgumentNullException(nameof(resultSelector));
 
-            return F<ISequence<TResult>>.YEval(source, 0, 
+            return F<ISequence<TResult>>.YEval(source, 0,
                 self => (s, index) => s.None() ? Empty<TResult>()
-                    : new LazySequence<TResult>(resultSelector(s.Head, index), () => self(s.GetTail(), index + 1) ) );
+                    : new LazySequence<TResult>(resultSelector(s.Head, index), () => self(s.GetTail(), index + 1)));
         }
 
         public static ISequence<TSource> Where<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -507,7 +520,7 @@ namespace AvP.Joy.Sequences
 
         public static ISequence<TResult> SelectMany<TSource, TResult>(
             this ISequence<TSource> source,
-            Func<TSource, ISequence<TResult>> selector )
+            Func<TSource, ISequence<TResult>> selector)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
@@ -517,7 +530,7 @@ namespace AvP.Joy.Sequences
 
         public static ISequence<TResult> SelectMany<TSource, TResult>(
             this ISequence<TSource> source,
-            Func<TSource, int, ISequence<TResult>> selector )
+            Func<TSource, int, ISequence<TResult>> selector)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
@@ -528,23 +541,23 @@ namespace AvP.Joy.Sequences
         public static ISequence<TResult> SelectMany<TSource, TCollection, TResult>(
             this ISequence<TSource> source,
             Func<TSource, ISequence<TCollection>> collectionSelector,
-            Func<TSource, TCollection, TResult> resultSelector )
+            Func<TSource, TCollection, TResult> resultSelector)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (collectionSelector == null) throw new ArgumentNullException(nameof(collectionSelector));
             if (resultSelector == null) throw new ArgumentNullException(nameof(resultSelector));
 
-            return F<ISequence<TResult>>.YEval(source, 
+            return F<ISequence<TResult>>.YEval(source,
                 self1 => s => s.None() ? Empty<TResult>()
                     : F<ISequence<TResult>>.YEval(collectionSelector(s.Head),
                         self2 => c => c.None() ? self1(s.GetTail())
-                            : new LazySequence<TResult>(resultSelector(s.Head, c.Head), () => self2(c.GetTail())) ) );
+                            : new LazySequence<TResult>(resultSelector(s.Head, c.Head), () => self2(c.GetTail()))));
         }
 
         public static ISequence<TResult> SelectMany<TSource, TCollection, TResult>(
             this ISequence<TSource> source,
             Func<TSource, int, ISequence<TCollection>> collectionSelector,
-            Func<TSource, TCollection, TResult> resultSelector )
+            Func<TSource, TCollection, TResult> resultSelector)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (collectionSelector == null) throw new ArgumentNullException(nameof(collectionSelector));
@@ -552,9 +565,9 @@ namespace AvP.Joy.Sequences
 
             Func<Indexed<TSource>, TCollection, TResult> _resultSelector = (s, c) => resultSelector(s.Value, c);
             return ApplyWithIndexFlat(
-                (_source, _collectionSelector) => SelectMany(_source, _collectionSelector, _resultSelector), 
-                source, 
-                collectionSelector );
+                (_source, _collectionSelector) => SelectMany(_source, _collectionSelector, _resultSelector),
+                source,
+                collectionSelector);
         }
 
         public static ISequence<TSource> Concat<TSource>(this ISequence<TSource> first, ISequence<TSource> second)
@@ -601,8 +614,8 @@ namespace AvP.Joy.Sequences
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Parameter must be zero or greater.");
 
-            return F<ISequence<TSource>>.Loop(source, count, 
-                loop => (s, c) => s.None() || c == 0 ? loop.Complete(s) : loop.Recur(s.GetTail(), c - 1) );
+            return F<ISequence<TSource>>.Loop(source, count,
+                loop => (s, c) => s.None() || c == 0 ? loop.Complete(s) : loop.Recur(s.GetTail(), c - 1));
         }
 
         public static ISequence<TSource> SkipWhile<TSource>(this ISequence<TSource> source, Func<TSource, bool> predicate)
@@ -611,7 +624,7 @@ namespace AvP.Joy.Sequences
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             return F<ISequence<TSource>>.Loop(source,
-                loop => (s) => s.None() || !predicate(s.Head) ? loop.Complete(s) : loop.Recur(s.GetTail()) );
+                loop => (s) => s.None() || !predicate(s.Head) ? loop.Complete(s) : loop.Recur(s.GetTail()));
         }
 
         public static ISequence<TSource> SkipWhile<TSource>(this ISequence<TSource> source, Func<TSource, int, bool> predicate)
@@ -634,7 +647,7 @@ namespace AvP.Joy.Sequences
             return first.None() || second.None() ? Empty<TResult>()
                 : new LazySequence<TResult>(
                     resultSelector(first.Head, second.Head),
-                    () => first.GetTail().Zip(second.GetTail(), resultSelector) );
+                    () => first.GetTail().Zip(second.GetTail(), resultSelector));
         }
 
         public static ISequence<TResult> Zip<TSource, TResult>(this ISequence<ISequence<TSource>> sources, Func<ISequence<TSource>, TResult> resultSelector)
@@ -657,7 +670,7 @@ namespace AvP.Joy.Sequences
             return first.None() && second.None() ? Empty<TResult>()
                 : new LazySequence<TResult>(
                     resultSelector(first.HeadMaybe(), second.HeadMaybe()),
-                    () => first.GetTail().ZipAll(second.GetTail(), resultSelector) );
+                    () => first.GetTail().ZipAll(second.GetTail(), resultSelector));
         }
 
         public static ISequence<TResult> ZipAll<TSource, TResult>(this ISequence<ISequence<TSource>> sources, Func<ISequence<Maybe<TSource>>, TResult> resultSelector)
@@ -668,7 +681,7 @@ namespace AvP.Joy.Sequences
             return sources.None(source => source.Any) ? Empty<TResult>()
                 : new LazySequence<TResult>(
                     resultSelector(sources.Select(HeadMaybe)),
-                    () => sources.Select(source => source.GetTail()).ZipAll(resultSelector) );
+                    () => sources.Select(source => source.GetTail()).ZipAll(resultSelector));
         }
 
         #endregion

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public static class F
     {
@@ -85,11 +81,12 @@ namespace AvP.Joy
         #endregion
         #region Loop
 
+        // TODO: Make sure this is handling null correctly.
         public interface ILoopControl<out T, out TResult>
         {
             bool IsCompleting { get; }
-            TResult Result { get; }
-            T Arg { get; }
+            TResult? Result { get; }
+            T? Arg { get; }
         }
 
         public interface ILoopController<T, TResult>
@@ -125,8 +122,8 @@ namespace AvP.Joy
         {
             if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<T, TResult>.Loop(
-                initialArg, 
-                arg => body(new LoopController<T, TResult>())(arg) );
+                initialArg,
+                arg => body(new LoopController<T, TResult>())(arg));
         }
 
         public static TResult Loop<T1, T2, TResult>(T1 initialArg1, T2 initialArg2, LoopBody<T1, T2, TResult> body)
@@ -134,7 +131,7 @@ namespace AvP.Joy
             if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2),
-                args => body(new LoopController<T1, T2, TResult>())(args.Item1, args.Item2) );
+                args => body(new LoopController<T1, T2, TResult>())(args.Item1, args.Item2));
         }
 
         public static TResult Loop<T1, T2, T3, TResult>(T1 initialArg1, T2 initialArg2, T3 initialArg3, LoopBody<T1, T2, T3, TResult> body)
@@ -142,7 +139,7 @@ namespace AvP.Joy
             if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2, T3>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2, initialArg3),
-                args => body(new LoopController<T1, T2, T3, TResult>())(args.Item1, args.Item2, args.Item3) );
+                args => body(new LoopController<T1, T2, T3, TResult>())(args.Item1, args.Item2, args.Item3));
         }
 
         public static TResult Loop<T1, T2, T3, T4, TResult>(T1 initialArg1, T2 initialArg2, T3 initialArg3, T4 initialArg4, LoopBody<T1, T2, T3, T4, TResult> body)
@@ -150,19 +147,19 @@ namespace AvP.Joy
             if (body == null) throw new ArgumentNullException(nameof(body));
             return LoopControl<Tuple<T1, T2, T3, T4>, TResult>.Loop(
                 Tuple.Create(initialArg1, initialArg2, initialArg3, initialArg4),
-                args => body(new LoopController<T1, T2, T3, T4, TResult>())(args.Item1, args.Item2, args.Item3, args.Item4) );
+                args => body(new LoopController<T1, T2, T3, T4, TResult>())(args.Item1, args.Item2, args.Item3, args.Item4));
         }
 
         private sealed class LoopControl<T, TResult> : ILoopControl<T, TResult>
         {
             private readonly bool isCompleting;
-            private readonly TResult result;
-            private readonly T arg;
+            private readonly TResult? result;
+            private readonly T? arg;
 
-            internal static ILoopControl<T, TResult> Complete(TResult result) { return new LoopControl<T, TResult>(true, result, default(T)); }
-            internal static ILoopControl<T, TResult> Recur(T arg) { return new LoopControl<T, TResult>(false, default(TResult), arg); }
+            internal static ILoopControl<T, TResult> Complete(TResult result) { return new LoopControl<T, TResult>(true, result, default); }
+            internal static ILoopControl<T, TResult> Recur(T arg) { return new LoopControl<T, TResult>(false, default, arg); }
 
-            private LoopControl(bool isCompleting, TResult result, T arg)
+            private LoopControl(bool isCompleting, TResult? result, T? arg)
             {
                 this.isCompleting = isCompleting;
                 this.result = result;
@@ -170,15 +167,15 @@ namespace AvP.Joy
             }
 
             public bool IsCompleting { get { return isCompleting; } }
-            public TResult Result { get { return result; } }
-            public T Arg { get { return arg; } }
+            public TResult? Result { get { return result; } }
+            public T? Arg { get { return arg; } }
 
             internal static TResult Loop(T initialArg, Func<T, ILoopControl<T, TResult>> body)
             {
                 var recurrence = LoopControl<T, TResult>.Recur(initialArg);
                 while (!recurrence.IsCompleting)
-                    recurrence = body(recurrence.Arg);
-                return recurrence.Result;
+                    recurrence = body(recurrence.Arg!);
+                return recurrence.Result!;
             }
         }
 
@@ -215,7 +212,7 @@ namespace AvP.Joy
         #endregion
         #region Memoize
 
-        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn)
+        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn) where T : notnull
         {
             if (fn == null) throw new ArgumentNullException(nameof(fn));
 
@@ -224,7 +221,7 @@ namespace AvP.Joy
 
             return arg =>
             {
-                TResult result;
+                TResult? result;
                 using (cacheLock.EnterReadLockDisposable())
                     if (cache.TryGetValue(arg, out result))
                         return result;

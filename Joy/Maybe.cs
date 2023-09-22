@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public static class Maybe
     {
-        public static Maybe<T> Some<T>(T value) 
+        public static Maybe<T> Some<T>(T value)
             => Maybe<T>.Some(value);
 
-        public static Maybe<T> If<T>(bool condition, Func<T> valueGetter) 
+        public static Maybe<T> If<T>(bool condition, Func<T> valueGetter)
             => Maybe<T>.If(condition, valueGetter);
 
-        public static Maybe<T> IfNonNull<T>(T value) 
+        public static Maybe<T> IfNonNull<T>(T value)
             => Maybe<T>.IfNonNull(value);
 
         public static int CompareTo<T>(this Maybe<T> x, Maybe<T> y) where T : IComparable<T>
@@ -33,12 +30,12 @@ namespace AvP.Joy
             }
 
             public bool Equals(Maybe<T> x, Maybe<T> y)
-                => x.HasValue == y.HasValue 
+                => x.HasValue == y.HasValue
                     && valueEqualityComparer.Equals(x.Value, y.Value);
 
             public int GetHashCode(Maybe<T> obj)
                 => !obj.HasValue ? 0
-                    : valueEqualityComparer.GetHashCode(obj.Value);
+                    : valueEqualityComparer.GetHashCodeNullable(obj.Value);
         }
 
         private struct Comparer<T> : IComparer<Maybe<T>>

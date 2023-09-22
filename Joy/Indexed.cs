@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public sealed class Indexed<T> : IEquatable<Indexed<T>>
     {
@@ -16,7 +14,7 @@ namespace AvP.Joy
         public int Index { get { return index; } }
         public T Value { get { return value; } }
 
-        public bool Equals(Indexed<T> other)
+        public bool Equals(Indexed<T>? other)
         {
             return ReferenceEquals(this, other)
                 || (other != null
@@ -24,7 +22,7 @@ namespace AvP.Joy
                     && Equals(value, other.value));
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var objAs = obj as Indexed<T>;
             return objAs != null & Equals(objAs);

@@ -1,7 +1,5 @@
-﻿using AvP.Joy.Sequences;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using AvP.Joy;
+using AvP.Joy.Sequences;
 
 namespace AvP.Joy.Enumerables
 {
@@ -141,7 +139,7 @@ namespace AvP.Joy.Enumerables
             if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
 
             var sourceList = sources.ToList();
-            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
+            if (sourceList.Any(o => o == null)) throw new ArgumentException("Element is null.", nameof(sources));
 
             return ZipAllImpl(sourceList, resultSelector);
         }
@@ -167,7 +165,7 @@ namespace AvP.Joy.Enumerables
             if (null == resultSelector) throw new ArgumentNullException(nameof(resultSelector));
 
             var sourceList = sources.ToList();
-            if (sourceList.Contains(null)) throw new ArgumentNullException(nameof(sources));
+            if (sourceList.Any(o => o == null)) throw new ArgumentNullException(nameof(sources));
             if (sourceList.None()) return Enumerable.Empty<TResult>();
 
             return ZipImpl(sourceList, resultSelector);
@@ -204,7 +202,7 @@ namespace AvP.Joy.Enumerables
         {
             private readonly IEnumerable<T> able;
             private readonly List<ForkedEnumerator> forks;
-            private IEnumerator<T> ator;
+            private IEnumerator<T>? ator;
 
             public Forker(IEnumerable<T> source, int forkCount)
             {
@@ -240,7 +238,7 @@ namespace AvP.Joy.Enumerables
                     return queue.Count > 0;
                 }
 
-                object System.Collections.IEnumerator.Current { get { return Current; } }
+                object? System.Collections.IEnumerator.Current { get { return Current; } }
 
                 public T Current
                 {
@@ -262,7 +260,7 @@ namespace AvP.Joy.Enumerables
                     if (isDisposed) throw new ObjectDisposedException("forked enumerator");
                     isDisposed = true;
                     owner.forks.Remove(this);
-                    if (owner.forks.Count == 0) owner.ator.Dispose();
+                    if (owner.forks.Count == 0) owner.ator?.Dispose();
                 }
             }
         }
@@ -281,15 +279,7 @@ namespace AvP.Joy.Enumerables
         public static IEnumerable<string> ToStrings<TSource>(this IEnumerable<TSource> source)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
-            return ToStringsImpl(source);
-        }
-
-        private static IEnumerable<string> ToStringsImpl<TSource>(IEnumerable<TSource> source)
-        {
-            foreach (var o in source)
-            {
-                yield return o == null ? null : o.ToString();
-            }
+            return source.Select(o => o?.ToString() ?? string.Empty);
         }
 
         #endregion
@@ -317,7 +307,7 @@ namespace AvP.Joy.Enumerables
             if (null == sources) throw new ArgumentNullException(nameof(sources));
 
             var sourceList = sources.ToList();
-            if (sourceList.Contains(null)) throw new ArgumentException("Element is null.", nameof(sources));
+            if (sourceList.Any(o => o == null)) throw new ArgumentException("Element is null.", nameof(sources));
 
             return InterleaveImpl(sourceList);
         }
@@ -360,7 +350,7 @@ namespace AvP.Joy.Enumerables
 
         public static bool IsDistinct<TSource>(
             this IEnumerable<TSource> source,
-            IEqualityComparer<TSource> equalityComparer = null)
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
@@ -378,7 +368,7 @@ namespace AvP.Joy.Enumerables
 
         public static IEnumerable<Counted<TSource>> DistinctCounted<TSource>(
             this IEnumerable<TSource> source,
-            IEqualityComparer<TSource> equalityComparer = null)
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
@@ -390,22 +380,22 @@ namespace AvP.Joy.Enumerables
         #endregion
         #region ToDictionary, ToSortedDictionary
 
-        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IEqualityComparer<TKey> comparer = null)
+        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
             => source.ToDictionary(pair => pair.Key, pair => pair.Value, comparer);
 
-        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IEqualityComparer<TKey> comparer = null)
+        public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
             => source.ToDictionary(pair => pair.Item1, pair => pair.Item2, comparer);
 
-        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IComparer<TKey> comparer = null)
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> source, IComparer<TKey>? comparer = null) where TKey : notnull
             => source.ToSortedDictionary(pair => pair.Key, pair => pair.Value, comparer);
 
-        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IComparer<TKey> comparer = null)
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TKey, TElement>(this IEnumerable<Tuple<TKey, TElement>> source, IComparer<TKey>? comparer = null) where TKey : notnull
             => source.ToSortedDictionary(pair => pair.Item1, pair => pair.Item2, comparer);
 
-        public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer = null)
+        public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer = null) where TKey : notnull
             => source.ToSortedDictionary(keySelector, F.Id, comparer);
 
-        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IComparer<TKey> comparer = null)
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IComparer<TKey>? comparer = null) where TKey : notnull
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             if (null == keySelector) throw new ArgumentNullException(nameof(keySelector));
@@ -426,10 +416,10 @@ namespace AvP.Joy.Enumerables
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
             => source.Skip(zeroBasedIndex).First(predicate);
 
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
+        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
             => source.Skip(zeroBasedIndex).FirstOrDefault();
 
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
+        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
             => source.Skip(zeroBasedIndex).FirstOrDefault(predicate);
 
         public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource fallback)
@@ -600,7 +590,7 @@ namespace AvP.Joy.Enumerables
 
         /// <summary>Determines whether all elements in a sequence are equal to the first, returning the first if so.</summary>
         /// <returns>A <see cref="Maybe{TSource}.Some" /> containing the single (though possibly repeated) value; otherwise <see cref="Maybe{TSource}.None"/> (if the sequence is empty or contains disparate elements).</returns>
-        public static Maybe<TSource> Consensus<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource> equalityComparer = null)
+        public static Maybe<TSource> Consensus<TSource>(this IEnumerable<TSource> source, IEqualityComparer<TSource>? equalityComparer = null)
         {
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
             return source.AggregateWhile(
@@ -667,9 +657,9 @@ namespace AvP.Joy.Enumerables
         #region EqualsByElements~, GetHashCodeByElements~, CompareByElements~
 
         public static bool EqualsByElementsOrdered<TSource>(
-            this IEnumerable<TSource> sourceA,
-            IEnumerable<TSource> sourceB,
-            IEqualityComparer<TSource> equalityComparer = null)
+            this IEnumerable<TSource>? sourceA,
+            IEnumerable<TSource>? sourceB,
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
             if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
@@ -684,18 +674,18 @@ namespace AvP.Joy.Enumerables
 
         public static int GetHashCodeByElementsOrdered<TSource>(
             this IEnumerable<TSource> source,
-            IEqualityComparer<TSource> equalityComparer = null)
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
-            return source.Aggregate(0, (acc, cur) => unchecked(acc * 397 ^ cur.GetHashCode()));
+            return source.Aggregate(0, (acc, cur) => unchecked(acc * 397 ^ cur.GetHashCodeNullable()));
         }
 
         public static bool EqualsByElementsUnordered<TSource>(
             this IEnumerable<TSource> sourceA,
             IEnumerable<TSource> sourceB,
-            IEqualityComparer<TSource> equalityComparer = null)
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == sourceA) throw new ArgumentNullException(nameof(sourceA));
             if (null == sourceB) throw new ArgumentNullException(nameof(sourceB));
@@ -706,12 +696,12 @@ namespace AvP.Joy.Enumerables
 
         public static int GetHashCodeByElementsUnordered<TSource>(
             this IEnumerable<TSource> source,
-            IEqualityComparer<TSource> equalityComparer = null)
+            IEqualityComparer<TSource>? equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
             equalityComparer = equalityComparer ?? EqualityComparer<TSource>.Default;
-            return source.Aggregate(0, (acc, cur) => unchecked(acc + cur.GetHashCode()));
+            return source.Aggregate(0, (acc, cur) => unchecked(acc + cur.GetHashCodeNullable()));
         }
 
         public static int CompareByElementsOrdered<TSource>(
