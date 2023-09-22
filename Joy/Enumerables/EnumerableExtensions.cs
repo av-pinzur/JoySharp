@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AvP.Joy.Sequences;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AvP.Joy.Sequences;
 
 namespace AvP.Joy.Enumerables
 {
@@ -107,8 +107,8 @@ namespace AvP.Joy.Enumerables
         #region Zip, ZipAll
 
         public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>(
-            this IEnumerable<TFirst> first, 
-            IEnumerable<TSecond> second, 
+            this IEnumerable<TFirst> first,
+            IEnumerable<TSecond> second,
             Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
         {
             if (null == first) throw new ArgumentNullException(nameof(first));
@@ -118,8 +118,8 @@ namespace AvP.Joy.Enumerables
         }
 
         private static IEnumerable<TResult> ZipAllImpl<TFirst, TSecond, TResult>(
-            IEnumerable<TFirst> first, 
-            IEnumerable<TSecond> second, 
+            IEnumerable<TFirst> first,
+            IEnumerable<TSecond> second,
             Func<Maybe<TFirst>, Maybe<TSecond>, TResult> resultSelector)
         {
             using (var etor1 = first.GetEnumerator())
@@ -134,7 +134,7 @@ namespace AvP.Joy.Enumerables
         }
 
         public static IEnumerable<TResult> ZipAll<TSource, TResult>(
-            this IEnumerable<IEnumerable<TSource>> sources, 
+            this IEnumerable<IEnumerable<TSource>> sources,
             Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
         {
             if (null == sources) throw new ArgumentNullException(nameof(sources));
@@ -147,7 +147,7 @@ namespace AvP.Joy.Enumerables
         }
 
         private static IEnumerable<TResult> ZipAllImpl<TSource, TResult>(
-            IReadOnlyList<IEnumerable<TSource>> sources, 
+            IReadOnlyList<IEnumerable<TSource>> sources,
             Func<IEnumerable<Maybe<TSource>>, TResult> resultSelector)
         {
             IReadOnlyList<IEnumerator<TSource>> etors;
@@ -160,7 +160,7 @@ namespace AvP.Joy.Enumerables
         }
 
         public static IEnumerable<TResult> Zip<TSource, TResult>(
-            this IEnumerable<IEnumerable<TSource>> sources, 
+            this IEnumerable<IEnumerable<TSource>> sources,
             Func<IEnumerable<TSource>, TResult> resultSelector)
         {
             if (null == sources) throw new ArgumentNullException(nameof(sources));
@@ -174,7 +174,7 @@ namespace AvP.Joy.Enumerables
         }
 
         private static IEnumerable<TResult> ZipImpl<TSource, TResult>(
-            IReadOnlyList<IEnumerable<TSource>> sources, 
+            IReadOnlyList<IEnumerable<TSource>> sources,
             Func<IEnumerable<TSource>, TResult> resultSelector)
         {
             IReadOnlyList<IEnumerator<TSource>> etors;
@@ -342,7 +342,7 @@ namespace AvP.Joy.Enumerables
             return !source.Any();
         }
 
-        public static bool None<TSource> (this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        public static bool None<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return !source.Any(predicate);
         }
@@ -359,7 +359,7 @@ namespace AvP.Joy.Enumerables
         #region IsDistinct, DistinctCounted
 
         public static bool IsDistinct<TSource>(
-            this IEnumerable<TSource> source, 
+            this IEnumerable<TSource> source,
             IEqualityComparer<TSource> equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
@@ -377,7 +377,7 @@ namespace AvP.Joy.Enumerables
         }
 
         public static IEnumerable<Counted<TSource>> DistinctCounted<TSource>(
-            this IEnumerable<TSource> source, 
+            this IEnumerable<TSource> source,
             IEqualityComparer<TSource> equalityComparer = null)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
@@ -418,53 +418,7 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region FirstOrDefault, LastOrDefault, SingleOrDefault, Nth, NthOrDefault
-
-        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
-        {
-            if (null == source) throw new ArgumentNullException(nameof(source));
-
-            using (var e = source.GetEnumerator())
-                if (e.MoveNext())
-                    return e.Current;
-            return fallback;
-        }
-
-        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
-            => source.Where(predicate).FirstOrDefault(fallback);
-
-        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
-        {
-            if (null == source) throw new ArgumentNullException(nameof(source));
-
-            Maybe<TSource> last = Maybe<TSource>.None;
-            foreach (var o in source)
-                last = o;
-            return last.HasValue ? last.Value : fallback;
-        }
-
-        public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
-            => source.Where(predicate).LastOrDefault(fallback);
-
-        public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, TSource fallback)
-        {
-            if (null == source) throw new ArgumentNullException(nameof(source));
-
-            using (var e = source.GetEnumerator())
-            {
-                if (e.MoveNext())
-                {
-                    TSource result = e.Current;
-                    if (e.MoveNext())
-                        throw new InvalidOperationException("Sequence contains more than one element");
-                    return result;
-                }
-            }
-            return fallback;
-        }
-
-        public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource fallback)
-            => source.Where(predicate).SingleOrDefault(fallback);
+        #region Nth, NthOrDefault
 
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
             => source.Skip(zeroBasedIndex).First();
@@ -819,7 +773,7 @@ namespace AvP.Joy.Enumerables
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
-            return source as ISet<TSource> 
+            return source as ISet<TSource>
                 ?? new HashSet<TSource>(source);
         }
 
@@ -828,14 +782,6 @@ namespace AvP.Joy.Enumerables
 
         public static ISet<ISet<ISet<TSource>>> ToSetDeep<TSource>(this IEnumerable<IEnumerable<IEnumerable<TSource>>> source)
             => source.Select(o => o.ToSetDeep()).ToSet();
-
-        public static HashSet<TSource> ToHashSet<TSource>(this IEnumerable<TSource> source)
-        {
-            if (null == source) throw new ArgumentNullException(nameof(source));
-
-            return source as HashSet<TSource> 
-                ?? new HashSet<TSource>(source);
-        }
 
         public static HashSet<HashSet<TSource>> ToHashSetDeep<TSource>(this IEnumerable<IEnumerable<TSource>> source)
             => source.Select(o => o.ToHashSet()).ToHashSet();
@@ -861,7 +807,7 @@ namespace AvP.Joy.Enumerables
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
-            return source as SortedSet<TSource> 
+            return source as SortedSet<TSource>
                 ?? new SortedSet<TSource>(source);
         }
 
