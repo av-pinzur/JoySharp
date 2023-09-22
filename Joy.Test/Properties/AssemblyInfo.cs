@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Tests")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Joy.Test")]
+[assembly: AssemblyDescription("Unit Test for JoySharp")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Toshiba")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © Toshiba 2013")]
+[assembly: AssemblyCompany("Av Pinzur")]
+[assembly: AssemblyProduct("JoySharp")]
+[assembly: AssemblyCopyright("Copyright 2013 Av Pinzur")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
