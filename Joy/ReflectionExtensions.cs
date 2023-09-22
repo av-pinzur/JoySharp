@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace AvP.Joy
 {
     public static class ReflectionExtensions
     {
-        public static TAttribute GetCustomAttribute<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute
+        public static TAttribute? GetCustomAttribute<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return source.GetCustomAttributes<TAttribute>().SingleOrDefault();
@@ -15,7 +13,7 @@ namespace AvP.Joy
         public static TAttribute[] GetCustomAttributes<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            return (TAttribute[]) source.GetCustomAttributes(typeof(TAttribute), inherit);
+            return (TAttribute[])source.GetCustomAttributes(typeof(TAttribute), inherit);
         }
 
         public static bool SignatureEquals(this MethodInfo first, MethodInfo second)
@@ -29,7 +27,7 @@ namespace AvP.Joy
                 && Enumerable.Range(0, firstParameters.Length).All(i =>
                     firstParameters[i].ParameterType == secondParameters[i].ParameterType
                         && firstParameters[i].IsIn == secondParameters[i].IsIn
-                        && firstParameters[i].IsOut == secondParameters[i].IsOut );
+                        && firstParameters[i].IsOut == secondParameters[i].IsOut);
         }
     }
 }

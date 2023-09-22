@@ -1,20 +1,26 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace AvP.Joy
 {
+    // TODO: Make sure this is handling null correctly.
     public struct Maybe<T> : IEquatable<Maybe<T>>
     {
         private readonly bool hasValue;
-        private readonly T value;
+        private readonly T? value;
 
-        public static Maybe<T> Some(T value) 
+        public static Maybe<T> Some(T? value)
             => new Maybe<T>(true, value);
 
-        public static Maybe<T> None { get {
-            return new Maybe<T>(false, default(T)); } }
+        public static Maybe<T> None
+        {
+            get
+            {
+                return new Maybe<T>(false, default);
+            }
+        }
 
 
-        public static Maybe<T> If(bool condition, Func<T> valueGetter) 
+        public static Maybe<T> If(bool condition, Func<T> valueGetter)
             => condition ? Some(valueGetter()) : None;
 
         public static Maybe<T> IfNonNull(T value)
@@ -30,15 +36,15 @@ namespace AvP.Joy
         //    this.value = default(T);
         //}
 
-        private Maybe(bool hasValue, T value)
+        private Maybe(bool hasValue, T? value)
         {
             this.hasValue = hasValue;
             this.value = value;
         }
 
-        public bool HasValue { get { return hasValue; } }
-        public T Value { get { if (!hasValue) throw new InvalidOperationException("The current Maybe has no value."); return value; } }
-        public T ValueOrDefault(T fallback = default(T)) { return hasValue ? value : fallback; }
+        public readonly bool HasValue => hasValue;
+        public readonly T Value => hasValue ? value! : throw new InvalidOperationException("The current Maybe has no value.");
+        [return: NotNullIfNotNull("fallback")] public readonly T? ValueOrDefault(T? fallback) => hasValue ? value! : fallback;
 
         public bool Equals(Maybe<T> other)
         {
@@ -46,20 +52,20 @@ namespace AvP.Joy
                 && Equals(value, other.value);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Maybe<T> && Equals((Maybe<T>)obj);
         }
 
         public override int GetHashCode()
         {
-            return unchecked(hasValue.GetHashCode() 
+            return unchecked(hasValue.GetHashCode()
                 * 397 ^ value.GetHashCodeNullable());
         }
 
         public override string ToString()
         {
-            return hasValue ? value.ToString() : "{none}";
+            return hasValue ? value?.ToString() ?? string.Empty : "{none}";
         }
     }
 }

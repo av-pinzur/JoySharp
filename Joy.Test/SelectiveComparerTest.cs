@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AvP.Joy.Test
 {
@@ -10,13 +8,19 @@ namespace AvP.Joy.Test
     {
         private sealed class PersonName
         {
-            public string Surname;
-            public string GivenName;
+            public PersonName(string surname, string givenName)
+            {
+                Surname = surname;
+                GivenName = givenName;
+            }
+
+            public string Surname { get; }
+            public string GivenName { get; }
         }
 
-        private readonly PersonName george1 = new PersonName { Surname = "Washington", GivenName = "George" };
-        private readonly PersonName george2 = new PersonName { Surname = "Bush", GivenName = "George" };
-        private readonly PersonName john = new PersonName { Surname = "Adams", GivenName = "John" };
+        private readonly PersonName george1 = new PersonName("Washington", "George");
+        private readonly PersonName george2 = new PersonName("Bush", "George");
+        private readonly PersonName john = new PersonName("Adams", "John");
 
         [TestMethod]
         public void TestSelectiveComparer()

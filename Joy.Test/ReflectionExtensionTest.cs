@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AvP.Joy.Test
 {
@@ -9,19 +8,19 @@ namespace AvP.Joy.Test
         [TestMethod]
         public void TestSignatureEquals()
         {
-            var baseline = GetType().GetMethod("Baseline");
+            var baseline = GetType().GetMethod("Baseline")!;
 
-            Assert.IsTrue(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("Same")));
-            Assert.IsTrue(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentNames")));
+            Assert.IsTrue(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("Same")!));
+            Assert.IsTrue(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentNames")!));
 
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentParamType")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentReturnType")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("VoidReturnType")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentParamOrder")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("RefInsteadOfOut")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("OutInsteadOfRef")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("FewerParams")));
-            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("MoreParams")));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentParamType")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentReturnType")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("VoidReturnType")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("DifferentParamOrder")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("RefInsteadOfOut")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("OutInsteadOfRef")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("FewerParams")!));
+            Assert.IsFalse(ReflectionExtensions.SignatureEquals(baseline, GetType().GetMethod("MoreParams")!));
         }
 
         public object Baseline(string a, ref object b, out bool c) { throw new NotImplementedException(); }

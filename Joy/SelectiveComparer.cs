@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public abstract class SelectiveComparer<T> : ComparerBase<T>
     {
@@ -9,22 +6,22 @@ namespace AvP.Joy
 
         private SelectiveComparer() { }
 
-        public static SelectiveComparer<T> OrderBy<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer = null)
+        public static SelectiveComparer<T> OrderBy<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer = null)
         {
             return new Impl<TComparand>(comparandSelector, comparer, SortDirection.Ascending);
         }
 
-        public static SelectiveComparer<T> OrderByDescending<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer = null)
+        public static SelectiveComparer<T> OrderByDescending<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer = null)
         {
             return new Impl<TComparand>(comparandSelector, comparer, SortDirection.Descending);
         }
 
-        public SelectiveComparer<T> ThenBy<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer = null)
+        public SelectiveComparer<T> ThenBy<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer = null)
         {
             return new Chained<TComparand>(this, comparandSelector, comparer, SortDirection.Ascending);
         }
 
-        public SelectiveComparer<T> ThenByDescending<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer = null)
+        public SelectiveComparer<T> ThenByDescending<TComparand>(Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer = null)
         {
             return new Chained<TComparand>(this, comparandSelector, comparer, SortDirection.Descending);
         }
@@ -35,7 +32,7 @@ namespace AvP.Joy
             private readonly IComparer<TComparand> comparer;
             private readonly SortDirection direction;
 
-            public Impl(Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer, SortDirection direction)
+            public Impl(Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer, SortDirection direction)
             {
                 if (comparandSelector == null) throw new ArgumentNullException(nameof(comparandSelector));
 
@@ -54,7 +51,7 @@ namespace AvP.Joy
         {
             private readonly SelectiveComparer<T> previousComparer;
 
-            public Chained(SelectiveComparer<T> previousComparer, Func<T, TComparand> comparandSelector, IComparer<TComparand> comparer, SortDirection direction)
+            public Chained(SelectiveComparer<T> previousComparer, Func<T, TComparand> comparandSelector, IComparer<TComparand>? comparer, SortDirection direction)
                 : base(comparandSelector, comparer, direction)
             {
                 if (previousComparer == null) throw new ArgumentNullException(nameof(previousComparer));

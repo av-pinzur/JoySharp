@@ -1,8 +1,5 @@
-﻿using System;
+﻿using AvP.Joy.Enumerables;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using AvP.Joy.Enumerables;
 
 namespace AvP.Joy
 {
@@ -18,15 +15,15 @@ namespace AvP.Joy
         public int Count { get { return innerSet.Count; } }
         public bool Contains(T item) => innerSet.Contains(item);
         public IEnumerator<T> GetEnumerator() => innerSet.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) innerSet).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)innerSet).GetEnumerator();
 
         public override int GetHashCode()
             => innerSet.GetHashCodeByElementsUnordered();
 
-        public bool Equals(IEnumerable<T> other)
-            => innerSet.SetEquals(other);
+        public bool Equals(IEnumerable<T>? other)
+            => other != null && innerSet.SetEquals(other);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var objAs = obj as IEnumerable<T>;
             return objAs != null && Equals(objAs);
@@ -42,7 +39,7 @@ namespace AvP.Joy
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
 
-            return source as ValueSet<T> 
+            return source as ValueSet<T>
                 ?? new ValueSet<T>(source);
         }
 

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
-    public class DelegatingComparer<T> : IComparer<T>
+    public class DelegatingComparer<T> : ComparerBase<T>
     {
         private readonly Comparison<T> comparison;
 
@@ -13,6 +10,6 @@ namespace AvP.Joy
             this.comparison = comparison;
         }
 
-        public int Compare(T x, T y) { return comparison(x, y); }
+        protected override int CompareImpl(T x, T y) { return comparison(x, y); }
     }
 }

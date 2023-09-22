@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public static class IOExtensions
     {
@@ -17,7 +13,7 @@ namespace AvP.Joy
         public static IEnumerable<string> ReadingLines(this TextReader source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            string buffer;
+            string? buffer;
             while ((buffer = source.ReadLine()) != null)
                 yield return buffer;
         }

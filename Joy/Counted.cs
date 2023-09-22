@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AvP.Joy
+﻿namespace AvP.Joy
 {
     public sealed class Counted<T> : IEquatable<Counted<T>>
     {
@@ -16,7 +14,7 @@ namespace AvP.Joy
         public T Value { get { return value; } }
         public int Count { get { return count; } }
 
-        public bool Equals(Counted<T> other)
+        public bool Equals(Counted<T>? other)
         {
             return ReferenceEquals(this, other)
                 || (other != null
@@ -24,7 +22,7 @@ namespace AvP.Joy
                     && Equals(count, other.count));
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var objAs = obj as Counted<T>;
             return objAs != null & Equals(objAs);

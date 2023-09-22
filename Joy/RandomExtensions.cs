@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AvP.Joy.Enumerables;
+﻿using AvP.Joy.Enumerables;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AvP.Joy
 {
@@ -18,7 +16,8 @@ namespace AvP.Joy
             return options.Nth(source.Next(options.Count()));
         }
 
-        public static TSource NextFromOrDefault<TSource>(this Random source, IEnumerable<TSource> options, TSource fallback = default(TSource))
+        [return: NotNullIfNotNull("fallback")]
+        public static TSource? NextFromOrDefault<TSource>(this Random source, IEnumerable<TSource> options, TSource? fallback = default(TSource))
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             if (null == options) throw new ArgumentNullException(nameof(options));

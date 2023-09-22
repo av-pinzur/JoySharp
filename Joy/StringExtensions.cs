@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AvP.Joy.Sequences;
+﻿using AvP.Joy.Sequences;
 
 namespace AvP.Joy
 {
@@ -27,19 +25,19 @@ namespace AvP.Joy
             return value.Length == 0;
         }
 
-        public static string OrEmpty(this string value)
+        public static string OrEmpty(this string? value)
         {
             return value ?? string.Empty;
         }
 
-        public static string TrimToNull(this string value)
+        public static string? TrimToNull(this string? value)
         {
             if (value == null) return value;
             var trimmed = value.Trim();
             return trimmed.IsEmpty() ? null : trimmed;
         }
 
-        public static string TrimOrEmpty(this string value)
+        public static string TrimOrEmpty(this string? value)
         {
             return value.OrEmpty().Trim();
         }

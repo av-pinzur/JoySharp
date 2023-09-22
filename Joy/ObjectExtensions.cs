@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace AvP.Joy
 {
@@ -14,17 +13,16 @@ namespace AvP.Joy
         public static bool IsAmong<TValue>(this TValue value, ICollection<TValue> set)
             => set.Contains(value);
 
-        public static string ToStringOrDefault<TValue>(this Maybe<TValue> value, string defaultValue)
-            => value.HasValue ? value.Value.ToString() : defaultValue;
+        [return: NotNullIfNotNull("defaultValue")]
+        public static string? ToStringOrDefault<TValue>(this Maybe<TValue> value, string? defaultValue = default)
+            => value.HasValue ? value.Value.ToStringOrDefault(defaultValue) : defaultValue;
 
-        public static string ToStringOrDefault<TValue>(this TValue value, string defaultValue) where TValue : class
-            => value == null ? defaultValue : value.ToString();
+        [return: NotNullIfNotNull("defaultValue")]
+        public static string? ToStringOrDefault<TValue>(this TValue? value, string? defaultValue = default)
+            => value?.ToString() ?? defaultValue;
 
-        public static string ToStringOrDefault<TValue>(this TValue? value, string defaultValue) where TValue : struct
-            => value == null ? defaultValue : value.ToString();
-
-        public static int GetHashCodeNullable(this object obj)
-            => null == obj ? 0 : obj.GetHashCode();
+        public static int GetHashCodeNullable(this object? obj)
+            => obj?.GetHashCode() ?? 0;
 
         /*
         public static bool? EqualsNullCheck(this object objA, object objB)
