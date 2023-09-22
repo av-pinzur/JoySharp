@@ -7,6 +7,7 @@ namespace AvP.Joy.Models
 #pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
     public sealed class EmailAddress : StringWrapper, IEquatable<EmailAddress>
     {
+        // Regular expression taken from
         // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s01.html
         private static readonly Parser<EmailAddress> parser = Parser.Of(
             value => new EmailAddress(value),

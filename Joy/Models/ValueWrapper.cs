@@ -6,14 +6,13 @@
 
         public ValueWrapper(T value)
         {
-            if (value == null) throw new ArgumentNullException("value");
             this.value = value;
         }
 
         public override bool Equals(object? obj) =>
             obj is ValueWrapper<T> other
-                && object.Equals(other.GetType(), this.GetType())
-                && object.Equals(other.value, this.value);
+                && Equals(GetType(), other.GetType())
+                && Equals(value, other.value);
 
         public override int GetHashCode() => value.GetHashCode();
 
