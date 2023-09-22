@@ -422,11 +422,11 @@ namespace AvP.Joy.Enumerables
         public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
             => source.Skip(zeroBasedIndex).FirstOrDefault(predicate);
 
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource fallback)
-            => source.Skip(zeroBasedIndex).FirstOrDefault(fallback);
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource defaultValue)
+            => source.Skip(zeroBasedIndex).FirstOrDefault(defaultValue);
 
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource fallback)
-            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate, fallback);
+        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource defaultValue)
+            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate, defaultValue);
 
         #endregion
         #region Batch, Buffer

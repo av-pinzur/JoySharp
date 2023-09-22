@@ -18,15 +18,15 @@ namespace AvP.Joy
             return value;
         }
 
-        [return: NotNullIfNotNull(nameof(fallback))]
-        public static TValue? GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue? fallback = default)
+        [return: NotNullIfNotNull(nameof(defaultValue))]
+        public static TValue? GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue? defaultValue = default)
         {
             if (null == dictionary) throw new ArgumentNullException(nameof(dictionary));
 
             TValue? value;
             return dictionary.TryGetValue(key, out value)
                 ? value
-                : fallback;
+                : defaultValue;
         }
     }
 }
