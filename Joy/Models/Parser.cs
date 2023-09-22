@@ -1,15 +1,15 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace AvP.Joy.Models
 {
-    public delegate bool Parser<T>(string value, out T success, out Exception failure);
+    public delegate bool Parser<T>(string value, [MaybeNullWhen(false)] out T success, [MaybeNullWhen(true)] out Exception failure);
 
     public static class Parser
     {
         public static Parser<T> Of<T>(Func<string, T> constructor, Regex validator)
         {
-            return (string value, out T success, out Exception failure) =>
+            return (string value, [MaybeNullWhen(false)] out T success, [MaybeNullWhen(true)] out Exception failure) =>
             {
                 if (validator.IsMatch(value))
                 {
@@ -27,9 +27,9 @@ namespace AvP.Joy.Models
         }
 
         public static T Parse<T>(this Parser<T> parser, string value) =>
-            parser(value, out T success, out Exception failure) ? success : throw failure;
+            parser(value, out T? success, out Exception? failure) ? success : throw failure;
 
-        public static bool TryParse<T>(this Parser<T> parser, string value, out T success) =>
+        public static bool TryParse<T>(this Parser<T> parser, string value, [MaybeNullWhen(false)] out T success) =>
             parser(value, out success, out _);
 
         public static bool CanParse<T>(this Parser<T> parser, string value) =>

@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace AvP.Joy.Models
+﻿namespace AvP.Joy.Models
 {
-    public class ValueWrapper<T>
+    public class ValueWrapper<T> where T : notnull
     {
         protected T value;
 
@@ -12,14 +10,14 @@ namespace AvP.Joy.Models
             this.value = value;
         }
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is ValueWrapper<T> other
                 && object.Equals(other.GetType(), this.GetType())
                 && object.Equals(other.value, this.value);
 
         public override int GetHashCode() => value.GetHashCode();
 
-        public override string ToString() => value.ToString();
+        public override string? ToString() => value.ToString();
     }
 
     public class StringWrapper : ValueWrapper<string>
