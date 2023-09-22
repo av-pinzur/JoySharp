@@ -31,8 +31,5 @@ namespace AvP.Joy.Models
 
         public static bool TryParse<T>(this Parser<T> parser, string value, [MaybeNullWhen(false)] out T success) =>
             parser(value, out success, out _);
-
-        public static bool CanParse<T>(this Parser<T> parser, string value) =>
-            parser(value, out _, out _);
     }
 }

@@ -34,5 +34,41 @@ namespace AvP.Joy.Test.Models
             var input = string.Empty;
             Assert.ThrowsException<ArgumentException>(() => EmailAddress.Parse(input), "value must a valid EmailAddress.");
         }
+
+        [TestMethod]
+        public void TryParse_WhenValueIsValid_ReturnsTrueWithNewInstance()
+        {
+            var input = "George.Washington@example.com";
+            var result = EmailAddress.TryParse(input, out var success);
+            Assert.IsTrue(result);
+            Assert.AreEqual(input, success?.ToString());
+        }
+
+        [TestMethod]
+        public void TryParse_WhenValueIsMalformed_ReturnsFalseWithNull()
+        {
+            var input = "George.Washington@@example.com";
+            var result = EmailAddress.TryParse(input, out var success);
+            Assert.IsFalse(result);
+            Assert.IsNull(success);
+        }
+
+        [TestMethod]
+        public void TryParse_WhenValueIsWhitespace_ReturnsFalseWithNull()
+        {
+            var input = "\t\r\n ";
+            var result = EmailAddress.TryParse(input, out var success);
+            Assert.IsFalse(result);
+            Assert.IsNull(success);
+        }
+
+        [TestMethod]
+        public void TryParse_WhenValueIsEmpty_ReturnsFalseWithNull()
+        {
+            var input = string.Empty;
+            var result = EmailAddress.TryParse(input, out var success);
+            Assert.IsFalse(result);
+            Assert.IsNull(success);
+        }
     }
 }
