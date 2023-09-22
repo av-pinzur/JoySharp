@@ -19,7 +19,7 @@ namespace AvP.Joy.Models
                 }
                 else
                 {
-                    success = default(T);
+                    success = default;
                     failure = new ArgumentException($"value must be a valid {typeof(T).Name}.");
                     return false;
                 }

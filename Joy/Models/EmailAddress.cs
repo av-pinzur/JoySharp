@@ -10,7 +10,7 @@ namespace AvP.Joy.Models
         // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s01.html
         private static readonly Parser<EmailAddress> parser = Parser.Of(
             value => new EmailAddress(value),
-            new Regex("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@↵\r\n(?:[A-Z0-9-]+\\.)+[A-Z]{2,6}$", RegexOptions.IgnoreCase));
+            new Regex("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[A-Z0-9-]+\\.)+[A-Z]{2,6}$", RegexOptions.IgnoreCase));
 
         private EmailAddress(string value) : base(value) { }
 
