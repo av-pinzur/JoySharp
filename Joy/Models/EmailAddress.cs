@@ -18,8 +18,6 @@ namespace AvP.Joy.Models
         public static EmailAddress Parse(string value) => parser.Parse(value);
         public static bool TryParse(string value, [MaybeNullWhen(false)] out EmailAddress success) => parser.TryParse(value, out success);
 
-        public bool Equals(EmailAddress? other) => Equals(this, other);
-        public static bool operator ==(EmailAddress a, EmailAddress b) => Equals(a, b);
-        public static bool operator !=(EmailAddress a, EmailAddress b) => !Equals(a, b);
+        public bool Equals(EmailAddress? other) => base.Equals(other);
     }
 }

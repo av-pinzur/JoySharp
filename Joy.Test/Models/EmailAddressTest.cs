@@ -6,13 +6,13 @@ namespace AvP.Joy.Test.Models
     [TestClass]
     public class EmailAddressTest
     {
-        private const string ValidA = "George.Washington@example.com";
-        private const string ValidB = "John.Adams@example.com";
+        private const string ValueA = "George.Washington@example.com";
+        private const string ValueB = "John.Adams@example.com";
 
         [TestMethod]
-        public void Parse_WhenValueIsValid_ReturnsNewInstance()
+        public void Parse_WhenValueIsValid_ReturnsEquivalentInstance()
         {
-            var input = ValidA;
+            var input = ValueA;
             var result = EmailAddress.Parse(input);
             Assert.AreEqual(input, result.ToString());
         }
@@ -77,80 +77,80 @@ namespace AvP.Joy.Test.Models
         [TestMethod]
         public void Equals_WhenValuesAreEquivalent_ReturnsTrue()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidA);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueA);
             Assert.IsTrue(a.Equals(b));
         }
 
         [TestMethod]
         public void Equals_WhenValuesAreDifferent_ReturnsFalse()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidB);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueB);
             Assert.IsFalse(a.Equals(b));
         }
 
         [TestMethod]
         public void EqualsObject_WhenValuesAreEquivalent_ReturnsTrue()
         {
-            object a = EmailAddress.Parse(ValidA);
-            object b = EmailAddress.Parse(ValidA);
+            object a = EmailAddress.Parse(ValueA);
+            object b = EmailAddress.Parse(ValueA);
             Assert.IsTrue(a.Equals(b));
         }
 
         [TestMethod]
         public void EqualsObject_WhenValuesAreDifferent_ReturnsFalse()
         {
-            object a = EmailAddress.Parse(ValidA);
-            object b = EmailAddress.Parse(ValidB);
+            object a = EmailAddress.Parse(ValueA);
+            object b = EmailAddress.Parse(ValueB);
             Assert.IsFalse(a.Equals(b));
         }
 
         [TestMethod]
         public void GetHashCode_WhenValuesAreEquivalent_ReturnsSame()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidA);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueA);
             Assert.AreEqual(a.GetHashCode(), b.GetHashCode());
         }
 
         [TestMethod]
-        public void GetHashCode_WhenValuesAreEquivalent_ReturnsDifferent()
+        public void GetHashCode_WhenValuesAreDifferent_ReturnsDifferent()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidB);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueB);
             Assert.AreNotEqual(a.GetHashCode(), b.GetHashCode());
         }
 
         [TestMethod]
         public void EqualEqual_WhenValuesAreEquivalent_ReturnsTrue()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidA);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueA);
             Assert.IsTrue(a == b);
         }
 
         [TestMethod]
         public void EqualEqual_WhenValuesAreDifferent_ReturnsFalse()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidB);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueB);
             Assert.IsFalse(a == b);
         }
 
         [TestMethod]
         public void NotEqual_WhenValuesAreEquivalent_ReturnsFalse()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidA);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueA);
             Assert.IsFalse(a != b);
         }
 
         [TestMethod]
         public void EqualEqual_WhenValuesAreDifferent_ReturnsTrue()
         {
-            var a = EmailAddress.Parse(ValidA);
-            var b = EmailAddress.Parse(ValidB);
+            var a = EmailAddress.Parse(ValueA);
+            var b = EmailAddress.Parse(ValueB);
             Assert.IsTrue(a != b);
         }
     }
