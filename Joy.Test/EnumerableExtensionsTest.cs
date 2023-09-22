@@ -1,10 +1,10 @@
-﻿using System;
+﻿using AvP.Joy.Enumerables;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AvP.Joy.Enumerables;
 
 namespace AvP.Joy.Test
 {
@@ -64,7 +64,7 @@ namespace AvP.Joy.Test
         [TestMethod]
         public void TestZip_Enumerable_Deferred()
         {
-            var actual = new[] { new [] {0, 1}, new[] { 0, 1 } }.Zip(o => o).Zip(o => o);
+            var actual = new[] { new[] { 0, 1 }, new[] { 0, 1 } }.Zip(o => o).Zip(o => o);
             for (int i = 0; i < 2; i++)
                 Assert.AreEqual("(0, 1)|(0, 1)", actual.Select(o => '(' + o.ToStrings().Join(", ") + ')').Join("|"));
         }
@@ -87,27 +87,9 @@ namespace AvP.Joy.Test
         }
 
         [TestMethod]
-        public void TestLastOrDefault()
-        {
-            Assert.AreEqual('c', new[] { 'a', 'b', 'c' }.LastOrDefault('d'));
-            Assert.AreEqual('a', new[] { 'a' }.LastOrDefault('d'));
-            Assert.AreEqual('d', new char[0].LastOrDefault('d'));
-        }
-
-        [TestMethod]
-        public void TestSingleOrDefault()
-        {
-            Assert.AreEqual('a', new char[] { 'a' }.SingleOrDefault('d'));
-            Assert.AreEqual('d', new char[0].SingleOrDefault('d'));
-            AssertEqualThrows(
-                () => new char[] { 'a', 'b', 'c' }.SingleOrDefault(),
-                () => new char[] { 'a', 'b', 'c' }.SingleOrDefault('d'), $"Should fail just as {nameof(System.Linq)} does.");
-        }
-
-        [TestMethod]
         public void TestSelectDisposables()
         {
-            var disposableStati = new[] {new[] {false}, new[] {false}, new[] {false}};
+            var disposableStati = new[] { new[] { false }, new[] { false }, new[] { false } };
             IReadOnlyList<IDisposable> results;
             using (disposableStati.SelectDisposables(
                 o => new DelegatingDisposable(() => { o[0] = true; }),
@@ -123,7 +105,7 @@ namespace AvP.Joy.Test
         [TestMethod]
         public void TestSelectDisposables_WorstCase()
         {
-            var disposableStati = new[] {new[] {false}, new[] {false}, new[] {false}};
+            var disposableStati = new[] { new[] { false }, new[] { false }, new[] { false } };
             bool caughtExpected = false;
             try
             {
@@ -162,13 +144,13 @@ namespace AvP.Joy.Test
 
             var cycles = Enumerable.Range(0, cycleCount).ToList();
 
-            var baselineTime = MinTime(2, () => 
+            var baselineTime = MinTime(2, () =>
                     BuildUseDispose_Inconvenient(cycles, disposalThinkMs, workThinkMs));
 
-            var actualTime = MinTime(2, () => 
+            var actualTime = MinTime(2, () =>
                     BuildUseDispose_Convenient(cycles, disposalThinkMs, workThinkMs));
 
-            var thinkTime = TimeSpan.FromMilliseconds(cycleCount*(workThinkMs + disposalThinkMs));
+            var thinkTime = TimeSpan.FromMilliseconds(cycleCount * (workThinkMs + disposalThinkMs));
             var baseline = (baselineTime - thinkTime).TotalMilliseconds;
             var actual = (actualTime - thinkTime).TotalMilliseconds;
 
@@ -213,7 +195,7 @@ namespace AvP.Joy.Test
             {
                 this.thinkMs = thinkMs;
             }
-            
+
             public void Dispose()
             {
                 if (thinkMs > 0) Thread.Sleep(thinkMs);
