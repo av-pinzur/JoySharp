@@ -882,15 +882,15 @@ namespace AvP.Joy.Enumerables
             this IEnumerable<T> source,
             Action<T> action)
         {
-            var sourceCollection = source as ICollection<T>;
+            var sourceCollection = source as List<T>;
             if (sourceCollection != null)
             {
                 sourceCollection.ForEach(action);
             }
             else foreach (var o in source)
-            {
-                action(o);
-            }
+                {
+                    action(o);
+                }
         }
 
         public static void ForEach<T>(
