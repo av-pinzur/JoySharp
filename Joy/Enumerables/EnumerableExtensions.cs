@@ -876,5 +876,32 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
+        #region ForEach
+
+        public static void ForEach<T>(
+            this IEnumerable<T> source,
+            Action<T> action)
+        {
+            var sourceCollection = source as ICollection<T>;
+            if (sourceCollection != null)
+            {
+                sourceCollection.ForEach(action);
+            }
+            else foreach (var o in source)
+            {
+                action(o);
+            }
+        }
+
+        public static void ForEach<T>(
+            this IEnumerable<T> source,
+            Action<T, int> action)
+        {
+            source
+                .Select((o, i) => Tuple.Create(o, i))
+                .ForEach(t => action(t.Item1, t.Item2));
+        }
+
+        #endregion
     }
 }
