@@ -1,5 +1,6 @@
 ﻿using AvP.Joy;
 using AvP.Joy.Sequences;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AvP.Joy.Enumerables
 {
@@ -410,23 +411,28 @@ namespace AvP.Joy.Enumerables
         #endregion
         #region Nth, NthOrDefault
 
+        private static TSource FirstImpl<TSource>(IEnumerable<TSource> source, string emptyExcMsg)
+        {
+            using (var ator = source.GetEnumerator())
+            {
+                if (!ator.MoveNext()) throw new InvalidOperationException(emptyExcMsg);
+                return ator.Current;
+            }
+        }
+
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
-            => source.Skip(zeroBasedIndex).First();
+            => FirstImpl(source.Skip(zeroBasedIndex), "Sequence contains too few elements.");
 
         public static TSource Nth<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
-            => source.Skip(zeroBasedIndex).First(predicate);
+            => FirstImpl(source.Where(predicate).Skip(zeroBasedIndex), "Sequence contains too few elements meeting the specified critieria.");
 
-        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex)
-            => source.Skip(zeroBasedIndex).FirstOrDefault();
-
-        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate)
-            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate);
-
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource defaultValue)
+        [return: NotNullIfNotNull(nameof(defaultValue))]
+        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, TSource? defaultValue = default)
             => source.Skip(zeroBasedIndex).FirstOrDefault(defaultValue);
 
-        public static TSource NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource, bool> predicate, TSource defaultValue)
-            => source.Skip(zeroBasedIndex).FirstOrDefault(predicate, defaultValue);
+        [return: NotNullIfNotNull(nameof(defaultValue))]
+        public static TSource? NthOrDefault<TSource>(this IEnumerable<TSource> source, int zeroBasedIndex, Func<TSource?, bool> predicate, TSource? defaultValue = default)
+            => source.Where(predicate).NthOrDefault(zeroBasedIndex, defaultValue);
 
         #endregion
         #region Batch, Buffer
