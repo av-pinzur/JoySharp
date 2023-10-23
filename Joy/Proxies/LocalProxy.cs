@@ -1,80 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Messaging;
-using System.Runtime.Remoting.Proxies;
+﻿using AvP.Joy.Proxies.Internal;
 using System.Reflection;
-using AvP.Joy.Enumerables;
 
 namespace AvP.Joy.Proxies
 {
-    public abstract class LocalProxy
+    public abstract class LocalProxy<TInterface>
     {
-        private readonly IReadOnlyCollection<Type> supportedInterfaces;
-        private readonly LocalRealProxy innerProxy;
+        private readonly TInterface transparentProxy;
 
-        protected LocalProxy(Type firstSupportedInterface, params Type[] otherSupportedInterfaces)
-            : this(firstSupportedInterface.FollowedBy(otherSupportedInterfaces)) {}
-
-        protected LocalProxy(IEnumerable<Type> supportedInterfaces)
+        static LocalProxy()
         {
-            if (supportedInterfaces == null) throw new ArgumentNullException(nameof(supportedInterfaces));
-
-            this.supportedInterfaces = supportedInterfaces.ToList();
-
-            if (this.supportedInterfaces.None())
-                throw new ArgumentException("Argument must not be empty.", nameof(supportedInterfaces));
-            if (this.supportedInterfaces.Contains(null))
-                throw new ArgumentException("Argument elements must not be null.", nameof(supportedInterfaces));
-            if (this.supportedInterfaces.Any(t => !t.IsInterface))
-                throw new ArgumentException("Argument elements must be interface types.", nameof(supportedInterfaces));
-
-            this.innerProxy = new LocalRealProxy(this);
+            if (!typeof(TInterface).IsInterface) throw new ArgumentException("Type argument must be an interface type.", nameof(TInterface));
         }
 
-        protected abstract object Invoke(MethodInfo method, object[] parameters);
-
-        public object GetTransparentProxy()
+        protected LocalProxy()
         {
-            return innerProxy.GetTransparentProxy();
+            this.transparentProxy = DelegatingDispatchProxy.Create<TInterface>(this.Invoke);
         }
 
-        private sealed class LocalRealProxy : RealProxy, IRemotingTypeInfo
+        #region Static Factory Methods
+
+        public static LocalProxy<TInterface> DelegatingTo(Func<MethodInfo, object?[], object?> invocationHandler)
         {
-            private readonly LocalProxy container;
+            if (invocationHandler == null) throw new ArgumentNullException(nameof(invocationHandler));
+            return new DelegatingLocalProxy(invocationHandler);
+        }
 
-            public LocalRealProxy(LocalProxy container)
-                :base(container.supportedInterfaces.First())
+        public static LocalProxy<TInterface> DelegatingSingleMethodTo(Delegate target)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
+            var type = typeof(TInterface);
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+            var methods = type.GetMethods(bindingFlags)
+                .Where(m => m.DeclaringType != typeof(object))
+                .ToList();
+
+            if (methods.Count < 1)
+                throw new ArgumentException("Type argument must declare a method.", nameof(TInterface));
+            if (methods.Count > 1)
+                throw new ArgumentException(string.Format(
+                    "Type argument must not declare more than one method. Declared methods: {0}.",
+                    methods.Select(m => m.DeclaringType!.Name + '.' + m.Name).Join(", ")), nameof(TInterface));
+            if (!methods[0].SignatureEquals(target.Method))
+                throw new ArgumentException("Argument must have same signature as TInterface's method.", nameof(target));
+
+            return DelegatingTo((m, args) => target.DynamicInvoke(args));
+        }
+
+        #endregion
+
+        protected abstract object? Invoke(MethodInfo method, object?[] args);
+
+        public TInterface GetTransparentProxy()
+        {
+            return this.transparentProxy;
+        }
+
+        private sealed class DelegatingLocalProxy : LocalProxy<TInterface>
+        {
+            private readonly Func<MethodInfo, object?[], object?> invocationHandler;
+
+            public DelegatingLocalProxy(Func<MethodInfo, object?[], object?> invocationHandler)
             {
-                this.container = container;
+                this.invocationHandler = invocationHandler;
             }
 
-            string IRemotingTypeInfo.TypeName
+            protected override object? Invoke(MethodInfo method, object?[] args)
             {
-                get { throw new NotImplementedException(); }
-                set { throw new NotImplementedException(); }
-            }
-
-            bool IRemotingTypeInfo.CanCastTo(Type type, object o)
-            {
-                return container.supportedInterfaces.Any(type.IsAssignableFrom);
-            }
-
-            public override IMessage Invoke(IMessage msg)
-            {
-                var callMsg = (IMethodCallMessage)msg;
-                var method = (MethodInfo)callMsg.MethodBase;
-                var args = callMsg.Args;
-                try
-                {
-                    var result = container.Invoke(method, args);
-                    return new ReturnMessage(result, args, args.Length, null, callMsg);
-                }
-                catch (Exception e)
-                {
-                    return new ReturnMessage(e, callMsg);
-                }
+                return invocationHandler(method, args);
             }
         }
     }

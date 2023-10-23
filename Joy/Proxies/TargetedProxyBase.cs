@@ -6,9 +6,9 @@ namespace AvP.Joy.Proxies
     {
         protected abstract TInterface Target { get; }
 
-        protected sealed override object Invoke(MethodInfo method, object[] parameters)
+        protected sealed override object? Invoke(MethodInfo method, object?[] args)
         {
-            return method.Invoke(Target, parameters);
+            return method.Invoke(Target, args);
         }
     }
 }
