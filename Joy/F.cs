@@ -1,4 +1,7 @@
-﻿namespace AvP.Joy
+﻿using AvP.Joy.Internal;
+using System.Reflection;
+
+namespace AvP.Joy
 {
     public static class F
     {
@@ -254,6 +257,46 @@
             var mem = Memoize<Tuple<T1, T2, T3, T4>, TResult>(args => fn(args.Item1, args.Item2, args.Item3, args.Item4));
             return (arg1, arg2, arg3, arg4) => mem(Tuple.Create(arg1, arg2, arg3, arg4));
         }
+
+        #endregion
+        #region Implement
+
+        public static TInterface Implement<TInterface>(Func<MethodInfo, object?[], object?> invocationHandler) =>
+            DelegatingDispatchProxy.Create<TInterface>(invocationHandler);
+
+        public static TInterface Implement<TInterface>(Delegate target)
+        {
+            if (target == null) throw new ArgumentNullException(nameof(target));
+
+            var type = typeof(TInterface);
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+            var methods = type.GetMethods(bindingFlags)
+                .Where(m => m.DeclaringType != typeof(object))
+                .ToList();
+
+            if (methods.Count < 1)
+                throw new ArgumentException("Type argument must declare a method.", nameof(TInterface));
+            if (methods.Count > 1)
+                throw new ArgumentException(string.Format(
+                    "Type argument must not declare more than one method. Declared methods: {0}.",
+                    methods.Select(m => m.DeclaringType!.Name + '.' + m.Name).Join(", ")), nameof(TInterface));
+            if (!methods[0].SignatureEquals(target.Method))
+                throw new ArgumentException("Argument must have same signature as TInterface's method.", nameof(target));
+
+            return Implement<TInterface>((m, args) => target.DynamicInvoke(args));
+        }
+
+        #endregion
+        #region Facade
+
+        public static Func<T> Facade<T>(Func<Func<T>> functionFactory) =>
+            () => functionFactory()();
+
+        public static Func<T, R> Facade<T, R>(Func<Func<T, R>> functionFactory) =>
+            arg => functionFactory()(arg);
+
+        public static Func<T1, T2, R> Facade<T1, T2, R>(Func<Func<T1, T2, R>> functionFactory) =>
+            (arg1, arg2) => functionFactory()(arg1, arg2);
 
         #endregion
     }

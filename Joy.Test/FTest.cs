@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AvP.Joy.Test
 {
@@ -22,6 +21,32 @@ namespace AvP.Joy.Test
             Assert.AreEqual(120, factorial(5));
 
             Assert.AreEqual(120, F<int>.YEval(5, self => n => n == 0 ? 1 : n * self(n - 1)));
+        }
+
+        [TestMethod]
+        public void Implement_HotSwapTest()
+        {
+            Func<string, string> upper = s => s.ToUpperInvariant();
+            Func<string, string> doubler = s => s + s;
+
+            var target = upper;
+            var subject = F.Facade(() => target);
+            Assert.AreEqual("FOO", subject("foo"));
+
+            target = doubler;
+            Assert.AreEqual("foofoo", subject("foo"));
+        }
+
+        [TestMethod]
+        public void Implement_WithDelegateTest()
+        {
+            var subject = F.Implement<StringFunction>((string s) => s.ToUpperInvariant());
+            Assert.AreEqual("FOO", subject.F("foo"));
+        }
+
+        public interface StringFunction
+        {
+            string F(string value);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AvP.Joy.Proxies.Internal
+namespace AvP.Joy.Internal
 {
     public class DelegatingDispatchProxy : DispatchProxy
     {
@@ -12,7 +12,11 @@ namespace AvP.Joy.Proxies.Internal
         public DelegatingDispatchProxy()
             : base()
         {
-            @delegate = initDelegate!;
+            lock (initLock)
+            {
+                ArgumentNullException.ThrowIfNull(nameof(initDelegate));
+                @delegate = initDelegate!;
+            }
         }
 
         public static TInterface Create<TInterface>(Func<MethodInfo, object[], object?> @delegate)
