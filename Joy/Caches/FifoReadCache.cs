@@ -12,7 +12,7 @@
             this.maxCount = maxCount;
         }
 
-        public TValue GetOrAdd(TKey key, Func<TValue> fn)
+        public TValue GetOrAdd(TKey key, Func<TValue> valueFn)
         {
             // Try with a read-only lock to maximize throughput.
             using (cacheLock.EnterReadLockDisposable())
@@ -27,7 +27,7 @@
                 // once we released our original read lock.
                 return cache.GetOrAdd(key, () =>
                 {
-                    TValue value = fn();
+                    TValue value = valueFn();
                     keysByInsertionOrder.Enqueue(key);
 
                     while (keysByInsertionOrder.Count > maxCount)
