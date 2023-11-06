@@ -1,4 +1,5 @@
-﻿using AvP.Joy.Internal;
+﻿using AvP.Joy.Caches;
+using AvP.Joy.Internal;
 using System.Reflection;
 
 namespace AvP.Joy
@@ -215,45 +216,26 @@ namespace AvP.Joy
         #endregion
         #region Memoize
 
-        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn) where T : notnull
-        {
-            if (fn == null) throw new ArgumentNullException(nameof(fn));
+        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn) where T : notnull =>
+            Memoize(fn, new FifoReadCache<T, TResult>());
 
-            var cache = new Dictionary<T, TResult>();
-            var cacheLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
-            return arg =>
-            {
-                TResult? result;
-                using (cacheLock.EnterReadLockDisposable())
-                    if (cache.TryGetValue(arg, out result))
-                        return result;
-
-                using (cacheLock.EnterWriteLockDisposable())
-                    return cache.GetOrAdd(arg, () => fn(arg));
-            };
-        }
+        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn, IReadCache<T, TResult> cache) where T : notnull =>
+            arg => cache.GetOrAdd(arg, () => fn(arg));
 
         public static Func<T1, T2, TResult> Memoize<T1, T2, TResult>(Func<T1, T2, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException(nameof(fn));
-
             var mem = Memoize<Tuple<T1, T2>, TResult>(args => fn(args.Item1, args.Item2));
             return (arg1, arg2) => mem(Tuple.Create(arg1, arg2));
         }
 
         public static Func<T1, T2, T3, TResult> Memoize<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException(nameof(fn));
-
             var mem = Memoize<Tuple<T1, T2, T3>, TResult>(args => fn(args.Item1, args.Item2, args.Item3));
             return (arg1, arg2, arg3) => mem(Tuple.Create(arg1, arg2, arg3));
         }
 
         public static Func<T1, T2, T3, T4, TResult> Memoize<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> fn)
         {
-            if (fn == null) throw new ArgumentNullException(nameof(fn));
-
             var mem = Memoize<Tuple<T1, T2, T3, T4>, TResult>(args => fn(args.Item1, args.Item2, args.Item3, args.Item4));
             return (arg1, arg2, arg3, arg4) => mem(Tuple.Create(arg1, arg2, arg3, arg4));
         }

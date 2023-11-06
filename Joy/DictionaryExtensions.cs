@@ -6,11 +6,7 @@ namespace AvP.Joy
     {
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueGetter)
         {
-            if (null == dictionary) throw new ArgumentNullException(nameof(dictionary));
-            if (null == valueGetter) throw new ArgumentNullException(nameof(valueGetter));
-
-            TValue? value;
-            if (!dictionary.TryGetValue(key, out value))
+            if (!dictionary.TryGetValue(key, out TValue? value))
             {
                 value = valueGetter();
                 dictionary.Add(key, value);
