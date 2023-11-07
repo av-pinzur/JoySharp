@@ -9,6 +9,9 @@ public class FifoReadCache<TKey, TValue> : IReadCache<TKey, TValue> where TKey :
 
     public FifoReadCache(int maxCount = 1024)
     {
+        if (maxCount < 0)
+            throw new ArgumentOutOfRangeException(nameof(maxCount));
+
         this.maxCount = maxCount;
     }
 
@@ -22,18 +25,21 @@ public class FifoReadCache<TKey, TValue> : IReadCache<TKey, TValue> where TKey :
         // Release read lock before obtaining write lock
         // to avoid deadlock potential.
         using (cacheLock.EnterWriteLockDisposable())
+        {
             // Check again for a current value,
             // since another thread could have fetched it
             // once we released our original read lock.
-            return cache.GetOrAdd(key, () =>
+            var value = cache.GetOrAdd(key, () =>
             {
-                TValue value = valueFn();
+                var value = valueFn();
                 keysByInsertionOrder.Enqueue(key);
-
-                while (keysByInsertionOrder.Count > maxCount)
-                    cache.Remove(keysByInsertionOrder.Dequeue());
-
                 return value;
             });
+
+            while (keysByInsertionOrder.Count > maxCount)
+                cache.Remove(keysByInsertionOrder.Dequeue());
+
+            return value;
+        }
     }
 }

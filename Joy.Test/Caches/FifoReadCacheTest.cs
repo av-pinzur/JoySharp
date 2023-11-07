@@ -7,7 +7,7 @@ namespace AvP.Joy.Test.Caches;
 public class FifoReadCacheTest
 {
     [TestMethod]
-    public void RemembersValuePerKeyUntilOverMax()
+    public void RemembersValuePerKeyUntilOverMaxCount()
     {
         const string ignored = "ignoredValue";
         var subject = new FifoReadCache<byte, string>(maxCount: 3);
@@ -36,5 +36,17 @@ public class FifoReadCacheTest
         Assert.AreEqual("returnValue3", subject.GetOrAdd(3, () => ignored));
         Assert.AreEqual("returnValue4", subject.GetOrAdd(4, () => ignored));
         Assert.AreEqual("returnValue1b", subject.GetOrAdd(1, () => ignored));
+    }
+
+    [TestMethod]
+    public void MaxCountOfZeroDisablesCaching()
+    {
+        var subject = new FifoReadCache<byte, int>(maxCount: 0);
+        var callCount = 0;
+        var cached = subject.Memoize(_ => ++callCount);
+
+        Assert.AreEqual(1, cached(0));
+        Assert.AreEqual(2, cached(0));
+        Assert.AreEqual(3, cached(0));
     }
 }

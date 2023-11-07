@@ -7,4 +7,14 @@ public static class ReadCacheExtensions
         Func<T, TResult> fn
     ) where T : notnull =>
         arg => cache.GetOrAdd(arg, () => fn(arg));
+
+    public static Func<TValue> Prefetch<TValue>(
+        this IReadCache<Voidlike, TValue> cache,
+        Func<TValue> fn
+    )
+    {
+        var result = F.Decorate(fn, cache.Memoize);
+        var _ = result();
+        return result;
+    }
 }
