@@ -217,7 +217,7 @@ public static class F
     #region Memoize
 
     public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn) where T : notnull =>
-        new FifoReadCache<T, TResult>().Memoize(fn);
+        MemoryReadCache<T, TResult>.WithFifoEviction().Memoize(fn);
 
     #endregion
     #region Implement

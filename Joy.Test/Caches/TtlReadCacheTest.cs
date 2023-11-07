@@ -9,7 +9,7 @@ public class TtlReadCacheTest
     [TestMethod]
     public void PrefetchRemembersResultUntilTtlExpires()
     {
-        var subject = new TtlReadCache<Voidlike, int>(TimeSpan.FromMilliseconds(100));
+        var subject = MemoryReadCache<Voidlike, int>.WithTtlExpiry(TimeSpan.FromMilliseconds(100));
         var callCount = 0;
         var cached = subject.Prefetch(() => ++callCount);
 
@@ -27,7 +27,7 @@ public class TtlReadCacheTest
     [TestMethod]
     public void MaxAgeOfZeroDisablesCaching()
     {
-        var subject = new TtlReadCache<byte, int>(maxAge: TimeSpan.Zero);
+        var subject = MemoryReadCache<byte, int>.WithTtlExpiry(maxAge: TimeSpan.Zero);
         var callCount = 0;
         var cached = subject.Memoize(_ => ++callCount);
 

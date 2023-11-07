@@ -10,7 +10,7 @@ public class FifoReadCacheTest
     public void RemembersValuePerKeyUntilOverMaxCount()
     {
         const string ignored = "ignoredValue";
-        var subject = new FifoReadCache<byte, string>(maxCount: 3);
+        var subject = MemoryReadCache<byte, string>.WithFifoEviction(maxCount: 3);
 
         Assert.AreEqual("returnValue1", subject.GetOrAdd(1, () => "returnValue1"));
         Assert.AreEqual("returnValue2", subject.GetOrAdd(2, () => "returnValue2"));
@@ -41,7 +41,7 @@ public class FifoReadCacheTest
     [TestMethod]
     public void MaxCountOfZeroDisablesCaching()
     {
-        var subject = new FifoReadCache<byte, int>(maxCount: 0);
+        var subject = MemoryReadCache<byte, int>.WithFifoEviction(maxCount: 0);
         var callCount = 0;
         var cached = subject.Memoize(_ => ++callCount);
 

@@ -20,6 +20,17 @@ public class MemoryReadCache<TKey, TValue> : IReadCache<TKey, TValue> where TKey
         this.nowProvider = nowProvider ?? (() => DateTimeOffset.UtcNow);
     }
 
+    public static MemoryReadCache<TKey, TValue> WithFifoEviction(int maxCount = 1024) =>
+        new MemoryReadCache<TKey, TValue>(
+            evictionPolicy: new FifoEvictionPolicy<TKey>(maxCount)
+        );
+
+    public static MemoryReadCache<TKey, TValue> WithTtlExpiry(TimeSpan maxAge, Func<DateTimeOffset>? nowProvider = null) =>
+        new MemoryReadCache<TKey, TValue>(
+            expiryPolicy: new TtlExpiryPolicy<TValue>(maxAge),
+            nowProvider: nowProvider
+        );
+
     public TValue GetOrAdd(TKey key, Func<TValue> valueFn)
     {
         evictionPolicy.OnGetting(key);
