@@ -5,9 +5,9 @@ namespace AvP.Joy.Internal
     public class DelegatingDispatchProxy : DispatchProxy
     {
         private static readonly object initLock = new object();
-        private static Func<MethodInfo, object[], object?>? initDelegate = null;
+        private static Func<MethodInfo, object?[], object?>? initDelegate = null;
 
-        private readonly Func<MethodInfo, object[], object?> @delegate;
+        private readonly Func<MethodInfo, object?[], object?> @delegate;
 
         public DelegatingDispatchProxy()
             : base()
@@ -19,7 +19,7 @@ namespace AvP.Joy.Internal
             }
         }
 
-        public static TInterface Create<TInterface>(Func<MethodInfo, object[], object?> @delegate)
+        public static TInterface Create<TInterface>(Func<MethodInfo, object?[], object?> @delegate)
         {
             lock (initLock)
             {

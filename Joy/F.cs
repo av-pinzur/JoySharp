@@ -217,34 +217,14 @@ namespace AvP.Joy
         #region Memoize
 
         public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn) where T : notnull =>
-            Memoize(fn, new FifoReadCache<T, TResult>());
-
-        public static Func<T, TResult> Memoize<T, TResult>(Func<T, TResult> fn, IReadCache<T, TResult> cache) where T : notnull =>
-            arg => cache.GetOrAdd(arg, () => fn(arg));
-
-        public static Func<T1, T2, TResult> Memoize<T1, T2, TResult>(Func<T1, T2, TResult> fn)
-        {
-            var mem = Memoize<Tuple<T1, T2>, TResult>(args => fn(args.Item1, args.Item2));
-            return (arg1, arg2) => mem(Tuple.Create(arg1, arg2));
-        }
-
-        public static Func<T1, T2, T3, TResult> Memoize<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> fn)
-        {
-            var mem = Memoize<Tuple<T1, T2, T3>, TResult>(args => fn(args.Item1, args.Item2, args.Item3));
-            return (arg1, arg2, arg3) => mem(Tuple.Create(arg1, arg2, arg3));
-        }
-
-        public static Func<T1, T2, T3, T4, TResult> Memoize<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> fn)
-        {
-            var mem = Memoize<Tuple<T1, T2, T3, T4>, TResult>(args => fn(args.Item1, args.Item2, args.Item3, args.Item4));
-            return (arg1, arg2, arg3, arg4) => mem(Tuple.Create(arg1, arg2, arg3, arg4));
-        }
+            new FifoReadCache<T, TResult>().Memoize(fn);
 
         #endregion
         #region Implement
 
-        public static TInterface Implement<TInterface>(Func<MethodInfo, object?[], object?> invocationHandler) =>
-            DelegatingDispatchProxy.Create<TInterface>(invocationHandler);
+        public static TInterface Implement<TInterface>(Func<Invocation, object?> invocationHandler) =>
+            DelegatingDispatchProxy.Create<TInterface>(
+                (method, args) => invocationHandler.Invoke(new Invocation(method, args)));
 
         public static TInterface Implement<TInterface>(Delegate target)
         {
@@ -265,7 +245,43 @@ namespace AvP.Joy
             if (!methods[0].SignatureEquals(target.Method))
                 throw new ArgumentException("Argument must have same signature as TInterface's method.", nameof(target));
 
-            return Implement<TInterface>((m, args) => target.DynamicInvoke(args));
+            return Implement<TInterface>(invocation => target.DynamicInvoke(invocation.Arguments));
+        }
+
+        #endregion
+        #region Intercept
+
+        public static TInterface Intercept<TInterface>(
+            TInterface target,
+            Func<Func<Invocation, object?>, Func<Invocation, object?>> interceptor
+        ) where TInterface : notnull =>
+            Implement<TInterface>(interceptor(invocation => invocation.InvokeOn(target)));
+
+        public static Func<T1, T2, TResult> Intercept<T1, T2, TResult>(
+            Func<T1, T2, TResult> target,
+            Func<Func<Tuple<T1, T2>, TResult>, Func<Tuple<T1, T2>, TResult>> interceptor
+        )
+        {
+            var handler = interceptor(args => target(args.Item1, args.Item2));
+            return (arg1, arg2) => handler(Tuple.Create(arg1, arg2));
+        }
+
+        public static Func<T1, T2, T3, TResult> Intercept<T1, T2, T3, TResult>(
+            Func<T1, T2, T3, TResult> target,
+            Func<Func<Tuple<T1, T2, T3>, TResult>, Func<Tuple<T1, T2, T3>, TResult>> interceptor
+        )
+        {
+            var handler = interceptor(args => target(args.Item1, args.Item2, args.Item3));
+            return (arg1, arg2, arg3) => handler(Tuple.Create(arg1, arg2, arg3));
+        }
+
+        public static Func<T1, T2, T3, T4, TResult> Intercept<T1, T2, T3, T4, TResult>(
+            Func<T1, T2, T3, T4, TResult> target,
+            Func<Func<Tuple<T1, T2, T3, T4>, TResult>, Func<Tuple<T1, T2, T3, T4>, TResult>> interceptor
+        )
+        {
+            var handler = interceptor(args => target(args.Item1, args.Item2, args.Item3, args.Item4));
+            return (arg1, arg2, arg3, arg4) => handler(Tuple.Create(arg1, arg2, arg3, arg4));
         }
 
         #endregion

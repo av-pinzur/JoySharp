@@ -275,13 +275,16 @@ namespace AvP.Joy.Enumerables
         }
 
         #endregion
-        #region ToStrings
+        #region ToStrings, ToDescriptiveString
 
         public static IEnumerable<string> ToStrings<TSource>(this IEnumerable<TSource> source)
         {
             if (null == source) throw new ArgumentNullException(nameof(source));
             return source.Select(o => o?.ToString() ?? string.Empty);
         }
+
+        public static string ToDescriptiveString<TSource>(this IEnumerable<TSource> source) =>
+            $"[{source.ToStrings().Join(", ")}]";
 
         #endregion
         #region Interpose, Interleave

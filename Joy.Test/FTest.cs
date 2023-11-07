@@ -44,9 +44,52 @@ namespace AvP.Joy.Test
             Assert.AreEqual("FOO", subject.F("foo"));
         }
 
+        [TestMethod]
+        public void InterceptTest()
+        {
+            var logger = new Logger();
+            var target = new StringConcatator();
+            var subject = F.Intercept<StringBiFunction>(target, logger.Decorate);
+
+            var actual = subject.F("foo", "bar");
+
+            Assert.AreEqual("foobar", actual);
+            Assert.AreEqual(1, logger.Log.Count);
+            Assert.AreEqual("Invocation { Method = StringBiFunction.F(String, String), Arguments = [foo, bar] } => foobar", logger.Log.First());
+        }
+
+        private class Logger
+        {
+            public readonly List<string> Log = new();
+
+            public void Write(object obj)
+            {
+                Log.Add(obj.ToString()!);
+            }
+
+            public Func<T, TResult> Decorate<T, TResult>(Func<T, TResult> fn)
+                => arg =>
+                    {
+                        var result = fn(arg);
+                        Write($"{arg} => {result}");
+                        return result;
+                    };
+        }
+
         public interface StringFunction
         {
             string F(string value);
+        }
+
+        public interface StringBiFunction
+        {
+            string F(string value1, string value2);
+        }
+
+        public class StringConcatator : StringBiFunction
+        {
+            public string F(string value1, string value2) =>
+                value1 + value2;
         }
     }
 }

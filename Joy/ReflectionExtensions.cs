@@ -4,22 +4,14 @@ namespace AvP.Joy
 {
     public static class ReflectionExtensions
     {
-        public static TAttribute? GetCustomAttribute<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            return source.GetCustomAttributes<TAttribute>().SingleOrDefault();
-        }
+        public static TAttribute? GetCustomAttribute<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute =>
+            source.GetCustomAttributes<TAttribute>().SingleOrDefault();
 
-        public static TAttribute[] GetCustomAttributes<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            return (TAttribute[])source.GetCustomAttributes(typeof(TAttribute), inherit);
-        }
+        public static TAttribute[] GetCustomAttributes<TAttribute>(this MemberInfo source, bool inherit) where TAttribute : Attribute =>
+            (TAttribute[])source.GetCustomAttributes(typeof(TAttribute), inherit);
 
         public static bool SignatureEquals(this MethodInfo first, MethodInfo second)
         {
-            if (first == null) throw new ArgumentNullException(nameof(first));
-            if (second == null) throw new ArgumentNullException(nameof(second));
             var firstParameters = first.GetParameters();
             var secondParameters = second.GetParameters();
             return first.ReturnType == second.ReturnType
@@ -29,5 +21,8 @@ namespace AvP.Joy
                         && firstParameters[i].IsIn == secondParameters[i].IsIn
                         && firstParameters[i].IsOut == secondParameters[i].IsOut);
         }
+
+        public static string ToDescriptiveString(this MethodInfo methodInfo) =>
+            $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}({methodInfo.GetParameters().Select(p => p.ParameterType.Name).Join(", ")})";
     }
 }
