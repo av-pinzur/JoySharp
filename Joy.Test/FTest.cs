@@ -38,6 +38,14 @@ public class FTest
     }
 
     [TestMethod]
+    public void Implement_ExceptionTest()
+    {
+        Func<string, string> target = _ => throw new PrivateException();
+        var subject = F.Implement<StringFunction>(target);
+        Assert.ThrowsException<PrivateException>(() => subject.F("foo"));
+    }
+
+    [TestMethod]
     public void Implement_WithDelegateTest()
     {
         var subject = F.Implement<StringFunction>((string s) => s.ToUpperInvariant());
@@ -56,6 +64,20 @@ public class FTest
         Assert.AreEqual("foobar", actual);
         Assert.AreEqual(1, logger.Log.Count);
         Assert.AreEqual("Invocation { Method = StringBiFunction.F(String, String), Arguments = [foo, bar] } => foobar", logger.Log.First());
+    }
+
+    [TestMethod]
+    public async Task Decorate_AsyncTest()
+    {
+        var logger = new Logger();
+        var target = new Greeter();
+        var subject = F.Decorate<StringAsyncFunction>(target, logger.Decorate);
+
+        var actual = await subject.F("Baz");
+
+        Assert.AreEqual("Hello, Baz!", actual);
+        Assert.AreEqual(1, logger.Log.Count);
+        Assert.AreEqual("Invocation { Method = StringAsyncFunction.F(String), Arguments = [Baz] } => Hello, Baz!", logger.Log.First());
     }
 
     private class Logger
@@ -86,9 +108,24 @@ public class FTest
         string F(string value1, string value2);
     }
 
+    public interface StringAsyncFunction
+    {
+        Task<string> F(string value);
+    }
+
     public class StringConcatator : StringBiFunction
     {
         public string F(string value1, string value2) =>
             value1 + value2;
     }
+
+    public class Greeter : StringAsyncFunction
+    {
+        public Task<string> F(string value)
+        {
+            return Task.FromResult($"Hello, {value}!");
+        }
+    }
+
+    private class PrivateException : Exception { }
 }
