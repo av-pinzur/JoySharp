@@ -45,11 +45,11 @@ public class FTest
     }
 
     [TestMethod]
-    public void InterceptTest()
+    public void DecorateTest()
     {
         var logger = new Logger();
         var target = new StringConcatator();
-        var subject = F.Intercept<StringBiFunction>(target, logger.Decorate);
+        var subject = F.Decorate<StringBiFunction>(target, logger.Decorate);
 
         var actual = subject.F("foo", "bar");
 

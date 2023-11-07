@@ -249,38 +249,38 @@ public static class F
     }
 
     #endregion
-    #region Intercept
+    #region Decorate
 
-    public static TInterface Intercept<TInterface>(
+    public static TInterface Decorate<TInterface>(
         TInterface target,
-        Func<Func<Invocation, object?>, Func<Invocation, object?>> interceptor
+        Func<Func<Invocation, object?>, Func<Invocation, object?>> decorator
     ) where TInterface : notnull =>
-        Implement<TInterface>(interceptor(invocation => invocation.InvokeOn(target)));
+        Implement<TInterface>(decorator(invocation => invocation.InvokeOn(target)));
 
     public static Func<T1, T2, TResult> Intercept<T1, T2, TResult>(
         Func<T1, T2, TResult> target,
-        Func<Func<Tuple<T1, T2>, TResult>, Func<Tuple<T1, T2>, TResult>> interceptor
+        Func<Func<Tuple<T1, T2>, TResult>, Func<Tuple<T1, T2>, TResult>> decorator
     )
     {
-        var handler = interceptor(args => target(args.Item1, args.Item2));
+        var handler = decorator(args => target(args.Item1, args.Item2));
         return (arg1, arg2) => handler(Tuple.Create(arg1, arg2));
     }
 
     public static Func<T1, T2, T3, TResult> Intercept<T1, T2, T3, TResult>(
         Func<T1, T2, T3, TResult> target,
-        Func<Func<Tuple<T1, T2, T3>, TResult>, Func<Tuple<T1, T2, T3>, TResult>> interceptor
+        Func<Func<Tuple<T1, T2, T3>, TResult>, Func<Tuple<T1, T2, T3>, TResult>> decorator
     )
     {
-        var handler = interceptor(args => target(args.Item1, args.Item2, args.Item3));
+        var handler = decorator(args => target(args.Item1, args.Item2, args.Item3));
         return (arg1, arg2, arg3) => handler(Tuple.Create(arg1, arg2, arg3));
     }
 
     public static Func<T1, T2, T3, T4, TResult> Intercept<T1, T2, T3, T4, TResult>(
         Func<T1, T2, T3, T4, TResult> target,
-        Func<Func<Tuple<T1, T2, T3, T4>, TResult>, Func<Tuple<T1, T2, T3, T4>, TResult>> interceptor
+        Func<Func<Tuple<T1, T2, T3, T4>, TResult>, Func<Tuple<T1, T2, T3, T4>, TResult>> decorator
     )
     {
-        var handler = interceptor(args => target(args.Item1, args.Item2, args.Item3, args.Item4));
+        var handler = decorator(args => target(args.Item1, args.Item2, args.Item3, args.Item4));
         return (arg1, arg2, arg3, arg4) => handler(Tuple.Create(arg1, arg2, arg3, arg4));
     }
 
