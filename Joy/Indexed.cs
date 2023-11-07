@@ -1,42 +1,41 @@
-﻿namespace AvP.Joy
+﻿namespace AvP.Joy;
+
+public sealed class Indexed<T> : IEquatable<Indexed<T>>
 {
-    public sealed class Indexed<T> : IEquatable<Indexed<T>>
+    private readonly int index;
+    private readonly T value;
+
+    public Indexed(int index, T value)
     {
-        private readonly int index;
-        private readonly T value;
+        this.index = index;
+        this.value = value;
+    }
 
-        public Indexed(int index, T value)
-        {
-            this.index = index;
-            this.value = value;
-        }
+    public int Index { get { return index; } }
+    public T Value { get { return value; } }
 
-        public int Index { get { return index; } }
-        public T Value { get { return value; } }
+    public bool Equals(Indexed<T>? other)
+    {
+        return ReferenceEquals(this, other)
+            || (other != null
+                && Equals(index, other.index)
+                && Equals(value, other.value));
+    }
 
-        public bool Equals(Indexed<T>? other)
-        {
-            return ReferenceEquals(this, other)
-                || (other != null
-                    && Equals(index, other.index)
-                    && Equals(value, other.value));
-        }
+    public override bool Equals(object? obj)
+    {
+        var objAs = obj as Indexed<T>;
+        return objAs != null & Equals(objAs);
+    }
 
-        public override bool Equals(object? obj)
-        {
-            var objAs = obj as Indexed<T>;
-            return objAs != null & Equals(objAs);
-        }
+    public override int GetHashCode()
+    {
+        return unchecked(index.GetHashCode()
+            * 397 ^ (value == null ? 0 : value.GetHashCode()));
+    }
 
-        public override int GetHashCode()
-        {
-            return unchecked(index.GetHashCode()
-                * 397 ^ (value == null ? 0 : value.GetHashCode()));
-        }
-
-        public override string ToString()
-        {
-            return string.Format("({0}: [{1}])", index, value);
-        }
+    public override string ToString()
+    {
+        return string.Format("({0}: [{1}])", index, value);
     }
 }

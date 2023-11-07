@@ -1,32 +1,29 @@
-﻿using System;
+﻿namespace AvP.Joy.Sequences;
 
-namespace AvP.Joy.Sequences
+public sealed class WrappedSequence<T> : ISequence<T>
 {
-    public sealed class WrappedSequence<T> : ISequence<T>
+    private readonly ISequence<T> source;
+    private readonly Func<ISequence<T>, ISequence<T>> tailWrapper;
+
+    public WrappedSequence(ISequence<T> source, Func<ISequence<T>, ISequence<T>> tailWrapper)
     {
-        private readonly ISequence<T> source;
-        private readonly Func<ISequence<T>, ISequence<T>> tailWrapper;
+        if (source == null) throw new ArgumentNullException(nameof(source));
+        if (tailWrapper == null) throw new ArgumentNullException(nameof(tailWrapper));
 
-        public WrappedSequence(ISequence<T> source, Func<ISequence<T>, ISequence<T>> tailWrapper)
+        var sourceAs = source as WrappedSequence<T>;
+        if (sourceAs != null)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (tailWrapper == null) throw new ArgumentNullException(nameof(tailWrapper));
-
-            var sourceAs = source as WrappedSequence<T>;
-            if (sourceAs != null)
-            {
-                this.source = sourceAs.source;
-                this.tailWrapper = tail => tailWrapper(sourceAs.tailWrapper(tail));
-            }
-            else
-            {
-                this.source = source;
-                this.tailWrapper = tailWrapper;
-            }
+            this.source = sourceAs.source;
+            this.tailWrapper = tail => tailWrapper(sourceAs.tailWrapper(tail));
         }
-
-        public bool Any { get { return source.Any; } }
-        public T Head { get { return source.Head; } }
-        public ISequence<T> GetTail() { return tailWrapper(source.GetTail()); }
+        else
+        {
+            this.source = source;
+            this.tailWrapper = tailWrapper;
+        }
     }
+
+    public bool Any { get { return source.Any; } }
+    public T Head { get { return source.Head; } }
+    public ISequence<T> GetTail() { return tailWrapper(source.GetTail()); }
 }

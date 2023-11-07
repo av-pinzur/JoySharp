@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
+﻿namespace AvP.Joy;
 
-namespace AvP.Joy
+public static class SetExtensions
 {
-    public static class SetExtensions
+    public static bool Excludes<TValue>(this ISet<TValue> set, TValue item)
     {
-        public static bool Excludes<TValue>(this ISet<TValue> set, TValue item)
-        {
-            return !set.Contains(item);
-        }
+        return !set.Contains(item);
     }
 }
