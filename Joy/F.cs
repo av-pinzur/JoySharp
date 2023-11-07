@@ -257,7 +257,16 @@ public static class F
     ) where TInterface : notnull =>
         Implement<TInterface>(decorator(invocation => invocation.InvokeOn(target)));
 
-    public static Func<T1, T2, TResult> Intercept<T1, T2, TResult>(
+    public static Func<TResult> Decorate<TResult>(
+        Func<TResult> target,
+        Func<Func<Voidlike, TResult>, Func<Voidlike, TResult>> decorator
+    )
+    {
+        var handler = decorator(arg => target());
+        return () => handler(Voidlike.Instance);
+    }
+
+    public static Func<T1, T2, TResult> Decorate<T1, T2, TResult>(
         Func<T1, T2, TResult> target,
         Func<Func<Tuple<T1, T2>, TResult>, Func<Tuple<T1, T2>, TResult>> decorator
     )
@@ -266,7 +275,7 @@ public static class F
         return (arg1, arg2) => handler(Tuple.Create(arg1, arg2));
     }
 
-    public static Func<T1, T2, T3, TResult> Intercept<T1, T2, T3, TResult>(
+    public static Func<T1, T2, T3, TResult> Decorate<T1, T2, T3, TResult>(
         Func<T1, T2, T3, TResult> target,
         Func<Func<Tuple<T1, T2, T3>, TResult>, Func<Tuple<T1, T2, T3>, TResult>> decorator
     )
@@ -275,13 +284,56 @@ public static class F
         return (arg1, arg2, arg3) => handler(Tuple.Create(arg1, arg2, arg3));
     }
 
-    public static Func<T1, T2, T3, T4, TResult> Intercept<T1, T2, T3, T4, TResult>(
+    public static Func<T1, T2, T3, T4, TResult> Decorate<T1, T2, T3, T4, TResult>(
         Func<T1, T2, T3, T4, TResult> target,
         Func<Func<Tuple<T1, T2, T3, T4>, TResult>, Func<Tuple<T1, T2, T3, T4>, TResult>> decorator
     )
     {
         var handler = decorator(args => target(args.Item1, args.Item2, args.Item3, args.Item4));
         return (arg1, arg2, arg3, arg4) => handler(Tuple.Create(arg1, arg2, arg3, arg4));
+    }
+
+    public static Action Decorate(
+        Action target,
+        Func<Func<Voidlike, Voidlike>, Func<Voidlike, Voidlike>> decorator)
+    {
+        var handler = decorator(arg => { target(); return Voidlike.Instance; });
+        return () => { handler(Voidlike.Instance); };
+    }
+
+    public static Action<T> Decorate<T>(
+        Action<T> target,
+        Func<Func<T, Voidlike>, Func<T, Voidlike>> decorator)
+    {
+        var handler = decorator(arg => { target(arg); return Voidlike.Instance; });
+        return (arg) => { handler(arg); };
+    }
+
+    public static Action<T1, T2> Decorate<T1, T2>(
+        Action<T1, T2> target,
+        Func<Func<Tuple<T1, T2>, Voidlike>, Func<Tuple<T1, T2>, Voidlike>> decorator
+    )
+    {
+        var handler = decorator(args => { target(args.Item1, args.Item2); return Voidlike.Instance; });
+        return (arg1, arg2) => { handler(Tuple.Create(arg1, arg2)); };
+    }
+
+    public static Action<T1, T2, T3> Decorate<T1, T2, T3>(
+        Action<T1, T2, T3> target,
+        Func<Func<Tuple<T1, T2, T3>, Voidlike>, Func<Tuple<T1, T2, T3>, Voidlike>> decorator
+    )
+    {
+        var handler = decorator(args => { target(args.Item1, args.Item2, args.Item3); return Voidlike.Instance; });
+        return (arg1, arg2, arg3) => { handler(Tuple.Create(arg1, arg2, arg3)); };
+    }
+
+    public static Action<T1, T2, T3, T4> Decorate<T1, T2, T3, T4>(
+        Action<T1, T2, T3, T4> target,
+        Func<Func<Tuple<T1, T2, T3, T4>, Voidlike>, Func<Tuple<T1, T2, T3, T4>, Voidlike>> decorator
+    )
+    {
+        var handler = decorator(args => { target(args.Item1, args.Item2, args.Item3, args.Item4); return Voidlike.Instance; });
+        return (arg1, arg2, arg3, arg4) => { handler(Tuple.Create(arg1, arg2, arg3, arg4)); };
     }
 
     #endregion
