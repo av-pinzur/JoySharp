@@ -222,11 +222,11 @@ public static class F
     #endregion
     #region Implement
 
-    public static TInterface Implement<TInterface>(Func<Invocation, object?> invocationHandler) =>
-        DelegatingDispatchProxy.Create<TInterface>(
+    public static TInterface Implement<TInterface>(Func<Invocation, object?> invocationHandler) where TInterface : class =>
+    DelegatingDispatchProxy.Create<TInterface>(
             (method, args) => invocationHandler.Invoke(new Invocation(method, args)));
 
-    public static TInterface Implement<TInterface>(Delegate target)
+    public static TInterface Implement<TInterface>(Delegate target) where TInterface : class
     {
         if (target == null) throw new ArgumentNullException(nameof(target));
 
@@ -245,7 +245,7 @@ public static class F
         if (!methods[0].SignatureEquals(target.Method))
             throw new ArgumentException("Argument must have same signature as TInterface's method.", nameof(target));
 
-        return Implement<TInterface>(invocation => target.DynamicInvoke(invocation.Arguments));
+        return Implement<TInterface>(invocation => target.DynamicInvokeWithRawExceptions(invocation.Arguments));
     }
 
     #endregion
@@ -254,7 +254,7 @@ public static class F
     public static TInterface Decorate<TInterface>(
         TInterface target,
         Func<Func<Invocation, object?>, Func<Invocation, object?>> decorator
-    ) where TInterface : notnull =>
+    ) where TInterface : class =>
         Implement<TInterface>(decorator(invocation => invocation.InvokeOn(target)));
 
     public static Func<TResult> Decorate<TResult>(

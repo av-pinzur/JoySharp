@@ -24,4 +24,10 @@ public static class ReflectionExtensions
 
     public static string ToDescriptiveString(this MethodInfo methodInfo) =>
         $"{methodInfo.DeclaringType!.Name}.{methodInfo.Name}({methodInfo.GetParameters().Select(p => p.ParameterType.Name).Join(", ")})";
+
+    public static object? InvokeWithRawExceptions(this MethodInfo methodInfo, object? obj, object?[]? parameters) =>
+        methodInfo.Invoke(obj, BindingFlags.Default | BindingFlags.DoNotWrapExceptions, binder: null, parameters, culture: null);
+
+    public static object? DynamicInvokeWithRawExceptions(this Delegate del, object?[]? args) =>
+        del.Method.InvokeWithRawExceptions(del.Target, args);
 }
